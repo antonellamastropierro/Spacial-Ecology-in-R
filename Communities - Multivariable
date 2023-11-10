@@ -1,0 +1,47 @@
+# the objective is to observe community distribution using multivariable analysis
+# for this objective we will use vegan = vegan analysis package
+library(vegan)
+
+# we want to look at data in the vegan package, specifically dune data
+# we can view the dune data with the following:
+dune
+
+# if we want just see the first six rows
+head(dune)
+
+# to see the last six rows
+tail(dune)
+
+# DCA = detrended correspondence anaylis
+# DCA is a multivariate technique to determine how the species correspond
+# decorana is the DCA function
+ord <-decorana(dune)
+ord
+# first we want to take a look at the four axes and their lengths
+
+# we can determine which percentage is pertaining to the first (longest) axis
+# first to get the total value of all four axes
+ldc1 = 3.7004
+ldc2 = 3.1166
+ldc3 = 1.30055
+ldc4 = 1.47888
+total = ldc1 + ldc2 + ldc3 + ldc4
+
+# to get percentage of each axis
+pldc1 = ldc1 * 100/total
+pldc2 = ldc2 * 100/total
+pldc3 = ldc3 * 100/total
+pldc4 = ldc4 * 100/total
+pldc1
+pldc2
+pldc3
+pldc4
+
+# determine the total percentage for two axes
+pldc1 + pldc2
+# the total percentage with axis 1 and axis 2 equal 71%, therefore we can use
+# ... these two axes for analysis
+
+# we can see the plot of how the species are distributed based on axis 1 and 2
+plot(ord)
+# this spatial graph shows which species prefer the proximity of other species
