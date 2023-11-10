@@ -1,0 +1,87 @@
+library(imageRy)
+library(terra)
+
+im.list()
+
+im.import("matogrosso_l5_1992219_lrg.jpg")
+
+mg1992 <- im.import("matogrosso_l5_1992219_lrg.jpg")
+# band: 1=NIR 2=RED 3=GREEN
+im.plotRGB(mg1992, r=1, g=2, b=3)
+im.plotRGB(mg1992, r=2, g=1, b=3)
+im.plotRGB(mg1992, r=2, g=3, b=1)
+
+mg2006 <- im.import("matogrosso_ast_2006209_lrg.jpg")
+im.plotRGB(mg2006, r=2, g=3, b=1)
+
+# build a multiframe with 1992 and 2006 images together
+par(mfrow=c(1,2))
+im.plotRGB(mg1992, r=2, g=3, b=1)
+im.plotRGB(mg2006, r=2, g=3, b=1)
+
+dev.off()
+
+# plot the first band of the 1992 image
+plot(mg1992[[1]])
+# the range is from 0 to 255 b/c the image is at 8-bit
+# with 8 bit, the information would be 2^8 = 256
+
+# in regards to DVI, if you have a high dense forest, the majority of the
+# ... NIR will be reflected while the the red will mostly be absorbed since it 
+# ... is absorbed by the leaves
+# In a less dense forest, the NIR reflectance will be lower and the red
+# ... reflectance will be higher since there are less leaves
+
+# Now we want to calculate the DVI between the 1992 and 2006 images
+# DVI = NIR - RED
+# bands; 1= NIR, 2 = RED, 3 = GREEN
+
+# calculate the DVI for the 1992 image first
+dvi1992 = mg1992[[1]] - mg1992[[2]]
+plot(dvi1992)
+cl <- colorRampPalette(c("dark blue", "yellow", "red", "black")) (100)
+plot(dvi1992, col=cl)
+# the higher DVi, the denser the area
+
+#calculate the DVI for the 2006 image
+dvi2006 = mg2006[[1]] - mg2006[[2]]
+plot(dvi2006, col=cl)
+# the image shows lower DVI values validating the less dense areas
+
+# YOU CAN'T COMPARE IMAGES WITH DIFFERENT BITs
+# in order to compare images with different bits, you can standardize them
+# to standardize the information, you can divide the DVI by their sum
+# NDVI: Normalized different vegetation index
+# NDVI = DVI/SUM
+# NDVI always ranges from -1 to 1
+# NDVI = -1 would indicate weakly dense forest (no NIR reflectance, all red)
+# NDVI = 1 would indicated dense forest (all NIR reflectance, no red)
+
+# Calculate the NDVI for image 1992
+ndvi1992 = dvi1992 / (mg1992[[1]] + mg1992[[2]])
+# or ndvi1992 = (mg1992[[1]] - mg1992[[2]]) / (mg1992[[1]] + mg1992[[2]])
+
+# plot the NDVI for 1992
+plot(ndvi1992, col=cl)
+# the range is now observed between -1 and 1, so it is standardized and can be
+# ... compared
+
+# Calculate the NDVI for image 2006
+ndvi2006 = dvi2006 / (mg2006[[1]] + mg2006[[2]])
+plot(ndvi2006, col = cl)
+
+par(mfrow=c(1,2))
+plot(ndvi1992, col=cl)
+plot(ndvi2006, col=cl)
+
+#Colorblind friendly colors
+clvir <- clvir <- colorRampPalette(c("violet", "dark blue", "blue", "green", "yellow"))(100)
+par(mfrow=c(1,2))
+plot(ndvi1992, col=clvir)
+plot(ndvi2006, col=clvir)
+
+
+# there is a specific function in the imageRy package for NDVI
+# function = im.ndvi()
+ndvi2006a <- im.ndvi(mg2006, 1, 2)
+plot(ndvi2006a, col = clvir)
