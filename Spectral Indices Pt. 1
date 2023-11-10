@@ -1,0 +1,34 @@
+# The purpose is to compaire the DVI (different vegetation indices) of a
+# ... location over two different dates
+
+library(imageRy)
+library(terra)
+im.list()
+
+# we are working with a location of the Amazon forest and will be comparing
+# .. the state of the vegetative area in 1999 vs. 2006
+
+# we want to import the 1999 image first
+im.import("matogrosso_l5_1992219_lrg.jpg")
+
+#let's assign a name to the 1992 image
+mg1992 <- im.import("matogrosso_l5_1992219_lrg.jpg")
+
+# plot the 1992 image with the bands
+# bands: 1=NIR, 2=red, 3= green
+im.plotRGB(mg1992, r=1, g=2, b=3)
+# based on the image, the majority consists of complete forest, with small
+# ... cleared area in the southwest portion
+
+im.plotRGB(mg1992, r=2, g=1, b=3)
+# again the image depicts a dense forest with the violet showing soil
+
+im.plotRGB(mg1992, r=2, g=3, b=1)
+# water usually is black b/c it absorbs the nearIR, but b/c this river contains
+# ... many soil particles, it is seen as yellow
+
+# NOW we want to look at the 2006 image
+mg2006 <- im.import("matogrosso_ast_2006209_lrg.jpg")
+im.plotRGB(mg2006, r=2, g=3, b=1)
+# the enhanced blue is best as the soil is yellow, making it more obvious
+# the 2006 image shows a large clearance in this image
