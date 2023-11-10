@@ -1,0 +1,32 @@
+#install and load packages
+library(spatstat)
+#install either through Packages tab or use install.packages("spatstat")
+
+# load data
+# data used: bei
+# https://CRAN-R-project.org/package=spatstat
+bei
+
+#plot data
+plot(bei)
+
+#point dimensions need to be changed = cex
+plot(bei, cex=0.2)
+
+#change the data symbol = pch
+plot(bei, cei=0.2, pch=19)
+
+bei.extra
+
+#bei.extra is composed of 2 masp: elev and grad. We want to select only elev
+plot(bei.extra$elev)
+
+# change the name of the dataset
+elevation <- bei.extra$elev
+plot(elevation)
+
+#other method for selecting elevation
+# double brackets are used because the data is images
+bei.extra[[1]]
+elevation2 <- bei.extra[[1]]
+plot(elevation2)
