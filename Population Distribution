@@ -1,0 +1,108 @@
+# objective is to determine dispersion patterns of populations
+library(sdm)
+library(terra)
+
+# system file function purpose is to search for files in the packages installed
+file <- system.file("external/species.shp", package="sdm")
+# the first part represents where the file is located
+# the second part represents which package the file is pulled from
+
+# this will show the location of the file
+file
+
+#rana is the frog species
+rana <- vect(file)
+rana
+
+rana$Occurrence
+# 1 represents if rana was found
+# 0 represents absence of rana
+
+# plot the rana population
+plot(rana, cex=.5)
+# the plot depicts both presence and absence of rana
+
+# in order to plot only the locations where rana is present (occurrence = 1)
+present <- rana[rana$Occurrence == 1, ]
+present
+present$Occurrence
+plot(present, cex=.5)
+
+
+# to select and plot only areas where rana is absent
+abs <- rana[rana$Occurrence == 0, ]
+# can also use rana$Occurence != 1
+abs
+abs$Occurrence
+plot(abs, cex = .5)
+
+# to plot the two graphs next to each other
+par(mfrow=c(1,2))
+plot(present, cex=.5)
+plot(abs, cex = .5)
+
+# to plot presence and absence together but with different colors
+# before we can plot this graph we need to close the multiframe from the
+# ...previous graph
+dev.off()
+
+#reassign presence and absence
+present <- rana[rana$Occurrence == 1, ]
+abs <- rana[rana$Occurrence == 0, ]
+
+# now we can plot the presence and absence together - separated by colors
+plot(present, col = "dark blue", cex = .75)
+points(abs, col = "purple")
+
+# predictors = env. variables (i.e elevation, temperature)
+
+# look at elevation at the predictor
+elev <- system.file("external/elevation.asc", package = "sdm")
+
+#rastars are images not vectors so we use rast instead of vect
+elevmap <- rast(elev)
+elevmap
+
+#plot elevation map
+plot(elevmap)
+
+# in order to put the points from the vector data showing the presence of rana
+# ... on top of the elevation map
+points(present, cex=.5)
+
+
+# look at temperature as the predictor
+temp <- system.file("external/temperature.asc", package = "sdm")
+tempmap <- rast(temp)
+tempmap
+plot(tempmap)
+points(present, cex=.5)
+
+
+# look at vegetation cover as predictor
+vegcov <- system.file("external/vegetation.asc", package = "sdm")
+vegcovmap <- rast(vegcov)
+vegcovmap
+plot(vegcovmap)
+points(present, cex=.5)
+
+
+# look at precipitation as predictor
+prec <- system.file("external/precipitation.asc", package = "sdm")
+precmap <- rast(prec)
+precmap
+plot(precmap)
+points(present, cex=.5)
+
+
+# how to plot all predictor graphs
+par(mfrow = c(2,2))
+
+plot(elevmap)
+points(present, cex=.5)
+plot(tempmap)
+points(present, cex=.5)
+plot(vegcovmap)
+points(present, cex=.5)
+plot(precmap)
+points(present, cex=.5)
