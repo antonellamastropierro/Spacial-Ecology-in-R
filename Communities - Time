@@ -1,0 +1,27 @@
+# the objective is to observe species relationships over time
+library(overlap)
+
+# data we are going to use from the overlap package
+data(kerinci)
+head(kerinci)
+# the data includes observed species (tiger), the zone (1), and time of day
+summary(kerinci)
+
+# we want to pull the data only pertaining to tigers
+tiger <- kerinci[kerinci$Sps == "tiger", ]
+tiger
+summary(tiger)
+
+# the time variable is circular since it loops, so we want to change it to linear
+kerinci$Timerad <- kerinci$Time * 2 * pi
+kerinci$Timerad
+head(kerinci)
+
+# now that the timeRad is added as a column, we reassign tiger to view only
+# ... the tiger species with the added column
+tiger <- kerinci[kerinci$Sps == "tiger", ]
+head(tiger)
+
+# plot tigers in relation to time
+timetig <- tiger$Timerad
+densityplot(timetig, rug = TRUE)
