@@ -1,0 +1,91 @@
+# install devtools
+
+#load devtools
+library(devtools)
+
+#install imageRy package
+devtools::install_github("ducciorocchini/imageRy")
+1
+
+#load packages needed
+library(imageRy)
+library(terra)
+
+# list the data
+im.list()
+
+# we want to look at sentinel.dolomites.b2.tif data
+b2 <- im.import("sentinel.dolomites.b2.tif")
+b2
+# the coordinates on the x and y-axes represent the distance from Equator and
+#... Meridian in meters
+
+# we want to change the color palette of the map
+cl <- colorRampPalette(c("black","grey","light grey")) (100)
+
+#plot the map with the new color palette
+plot(b2, col=cl)
+
+# import the green band from Sentinel-2 (band 3)
+b3 <- im.import("sentinel.dolomites.b3.tif") 
+plot(b3, col=cl)
+
+# import the red band from Sentinel-2 (band 4)
+b4 <- im.import("sentinel.dolomites.b4.tif")
+plot(b4, col=cl)
+# low values indicate the absorbance of red and high values indicate reflectance
+# ... of red
+
+# import the NIR band from Sentinel-2 (band 8)
+b8 <- im.import("sentinel.dolomites.b8.tif")
+plot(b8, col=cl)
+# the NIR show more details in the same map with respect to the visible bands
+
+# now we want to plot all band graphs at the same time
+par(mfrow=c(2,2))
+plot(b2,col=cl)
+plot(b3, col=cl)
+plot(b4, col=cl)
+plot(b8, col=cl)
+
+# to remove the graph
+dev.off()
+
+# to save time instead of plotting each individual plot, we can use the
+# ... stack function
+stacksent <- c(b2, b3, b4, b8)
+stacksent
+plot(stacksent, col=cl)
+
+# if we have a stack plot, in order to just select one image, i.e. b8
+plot(stacksent[[4]], col=cl)
+
+
+# EXERCISE: Plot in a multiframe the bands with different color ramps
+cl2 <- colorRampPalette(c("dark blue", "blue", "light blue")) (100)
+plot(b2, col=cl2)
+
+cl3 <- colorRampPalette(c("dark green", "green", "light green")) (100)
+plot(b3, col=cl3)
+
+cl4 <- colorRampPalette(c("dark red", "red", "pink")) (100)
+plot(b4, col=cl4)
+
+cl8 <- colorRampPalette(c("dark orange", "orange", "yellow")) (100)
+plot(b8, cl=cl8)
+
+par(mfrow=c(2,2))
+plot(b2,col=cl2)
+plot(b3, col=cl3)
+plot(b4, col=cl4)
+plot(b8, col=cl8)
+
+dev.off()
+# RGB Space : red, blue, green space
+# im.plotRGB to choose the different bands and combine them
+# can only choose three bands
+#stacksent: band2=blue, band3=green, band4=red, band8=NIR)
+im.plotRGB(stacksent, r=3, g=2, b=1)
+
+#the image is poor quality with respect to visible spectrum
+# this is why NIR is needed to enhance the image
