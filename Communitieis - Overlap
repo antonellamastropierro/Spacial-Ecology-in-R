@@ -1,0 +1,16 @@
+library(overlap)
+data(kerinci)
+head(kerinci)
+
+# tiger
+# The unit of time is the day, so values range from 0 to 1. 
+# The package overlap works entirely in radians: fitting density curves uses trigonometric functions (sin, cos, tan),
+# so this speeds up simulations. The conversion is straightforward: kerinci$Time * 2 * pi
+kerinci$timeRad <- kerinci$Time * 2 * pi
+
+# selecting the first species
+tiger <- kerinci[kerinci$Sps=="tiger",]
+
+# selecting the time for the tiger
+timetig <- tiger$timeRad
+densityPlot(timetig, rug=TRUE)
