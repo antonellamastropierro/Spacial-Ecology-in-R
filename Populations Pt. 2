@@ -1,0 +1,44 @@
+library(spatstat)
+
+bei
+plot(bei, cex= 0.2)
+
+# in order to convert the points to create a continuous map
+densitymap <- density(bei)
+densitymap
+plot(densitymap)
+
+# to place the points from the original data set on top of the density map
+points(bei, cex=.2)
+
+# change the map colors
+cl <- colorRampPalette(c("darkcyan", "darkorchid", "coral", "yellow"))(100)
+plot(densitymap, col=cl)
+# col is for color
+# the 100 represents the number of colors used in the map creating a gradient
+
+plot(bei.extra)
+
+# the plot contains two variables: elevation and gradient
+# to select only the elevation
+elev <- bei.extra[[1]]
+plot(elev)
+# bei.extra$elev can also be used intstead of bei.extra[[1]]
+
+# the data consists of two variables: elevation and gradient
+# we want to create a multiframe (1 row, 2 columns) which will allow us the
+# ablity to choose each map in each column
+par(mfrow=c(1,2))
+plot(densitymap)
+plot(elev)
+
+# the maps can also be shifted to 2 rows and 1 column
+par(mfrow=c(2,1))
+plot(densitymap)
+plot(elev)
+# ERROR: figure margins too large
+
+par(mfrow=c(1,3))
+plot(densitymap)
+plot(bei)
+plot(elev)
