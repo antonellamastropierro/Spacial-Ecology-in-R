@@ -1,0 +1,59 @@
+library(devtools)
+library(imageRy)
+library(terra)
+
+b2 <- im.import("sentinel.dolomites.b2.tif")
+b3 <- im.import("sentinel.dolomites.b3.tif")
+b4 <- im.import("sentinel.dolomites.b4.tif")
+b8 <- im.import("sentinel.dolomites.b8.tif")
+
+stacksent <- c(b2, b3, b4, b8)
+plot(stacksent)
+
+cl2 <- colorRampPalette(c("dark blue", "blue", "light blue")) (100)
+plot(b2, col=cl2)
+
+cl3 <- colorRampPalette(c("dark green", "green", "light green")) (100)
+plot(b3, col=cl3)
+
+cl4 <- colorRampPalette(c("dark red", "red", "pink")) (100)
+plot(b4, col=cl4)
+
+cl8 <- colorRampPalette(c("brown", "orange", "yellow")) (100)
+plot(b8, col=cl8)
+
+# we want to combine the three bands together
+im.plotRGB(stacksent, r=3, g=2, b=1)
+
+
+# the graph is poor quality, so we want to replace the b2 band with the near IR
+# ... band (b8)
+im.plotRGB(stacksent, r=4, g=3, b=2)
+# replacing the blue band with near ID band allows us to see additional details
+# since the vegetation has a high reflecivity of the nearIR band.
+# we can now we the difference between densely vegetated areas and cleared
+# ... land (pastures)
+
+# if we want to replace the green band with the near IR
+im.plotRGB(stacksent, r=3, g=4, b=2)
+# the violet shaded areas indicates soil
+
+# to replace the blue with near IR to enhance the blue component
+im.plotRGB(stacksent, r=3, g=2, b=4)
+
+# the pairs function allows us to make correlations between all of the individual
+# pixels within each band that we are observing
+
+pairs(stacksent)
+# row 1, col 1 represents blue band
+# row 2, col 2 represents green band
+# row 3, col 3 represents red band
+# row 4, col4 represents near IR band
+# the graphs show that when the three visible bands (RGB) are compared with each
+# ... other, then they are hyper-correlated because they are similar and do not
+# ... provide any additional information
+# when the visible bands are compared to the near IR band, the correlation is
+# ... lower as the near IR band is providing new information
+# the histograms represent the frequency of reflectivity:
+# I.E. comparing blue with green band, there are a higher amount of pixels with
+# ... lower reflectivity and the frequency decreases as reflectivity increases
