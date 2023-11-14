@@ -1,0 +1,35 @@
+# Objective: To observe the change in NO2 over time in Europe during COVID
+
+# load packages needed
+library(imageRy)
+library(terra)
+
+im.list()
+
+# we want to observe the amount of NO2 in January (starting point)
+EN01 <- im.import("EN_01.png")
+
+# we want to observe the amount of NO2 in March (ending point)
+EN13 <- im.import("EN_13.png")
+
+# we want to plot the first image and end image side by side
+par(mfrow=c(2,1))
+im.plotRGB.auto(EN01)
+im.plotRGB.auto(EN13)
+
+# we want to compare the first band of the two images
+dif = EN01[[1]] - EN13[[1]]
+# the bands can be changed as long as they're the same band for both images
+
+dev.off()
+
+# now we want to plot the comparison
+plot(dif)
+
+# we want to change the colors of image
+cldif <- colorRampPalette(c("blue", "white", "red")) (100)
+# the (100) indicates how many color with those three colors we want to use
+
+plot(dif, col=cldif)
+# all the red parts indicate the locations in which the NO2 values were higher
+# ... in January
