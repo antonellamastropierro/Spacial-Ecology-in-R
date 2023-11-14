@@ -42,3 +42,13 @@ difgl = stackg[[1]] - stackg[[4]]
   
 plot(difgl, col=clgl)
 # this image shows the temperature change between the first and last images
+# the image show a low temperature loss
+
+# now we want to stack the photos on top of each other using the RGB
+# place 2000 in red band
+# 2005 in green band
+# 2010 in blue band
+# whichever year was the warmest, that color band will appear
+im.plotRGB(stackg, r=1,g=2, b=3)
+# considering the center consists of more of a blue/black, this indicates that
+# ... the 2010 year was the warmest
