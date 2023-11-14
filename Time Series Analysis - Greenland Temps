@@ -1,0 +1,44 @@
+# Objective: to observe the temperature change in Greenland over time
+
+library(imageRy)
+library(terra)
+
+im.list()
+# there are four years of Greenland data observed: 2000, 2005, 2010, 2015
+
+# we want to observe the 2000 image first
+GL00 <- im.import("greenland.2000.tif")
+
+# change the colors
+clgl <- colorRampPalette(c("blue", "white", "red")) (100)
+plot(GL00, col = clgl)
+# red indicates warmer temparatures
+# blue indicated lower temperatures
+
+# now we want to import the remaining images
+GL05 <- im.import("greenland.2005.tif")
+GL10 <- im.import("greenland.2010.tif")
+GL15 <- im.import("greenland.2015.tif")
+
+# we plot just the final image
+plot(GL15, col=clgl)
+dev.off()
+
+# now we want to plot the first and last images together
+par(mfrow=c(2,1))
+plot(GL00, col=clgl)
+plot(GL15, col=clgl)
+
+dev.off()
+
+# we can also stack all four images
+stackg <- c(GL00, GL05, GL10, GL15)
+plot(stack, col=clgl)
+
+dev.off()
+# we want to compare the first and final elements of the stack
+difgl = stackg[[1]] - stackg[[4]]
+
+  
+plot(difgl, col=clgl)
+# this image shows the temperature change between the first and last images
