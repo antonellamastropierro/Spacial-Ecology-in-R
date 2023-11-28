@@ -1,0 +1,28 @@
+# objective is to work with Copernicus data
+
+# we want to install the ncdf4 package since the data file is in .nc format
+install.packages("ncdf4")
+
+library(ncdf4)
+library(terra)
+
+
+# we want to set the working directory to where the data file is located
+setwd("C:/Users/amast/OneDrive/Documents/UNIBO/Year 2 - 1st Semester/Spatial Ecology in R/Copernicus Data")
+
+soil2023 <- rast("c_gls_NDVI300_202101010000_GLOBE_PROBAV_V1.0.1.nc")
+plot(soil2023)
+dev.off()
+
+plot(soil2023)
+
+cl <- colorRampPalette(c("red", "orange", "yellow")) (100)
+plot(soil2023, col = cl)
+
+# we want to crop the map and location to a certain long and lat
+ext <- c(22, 26, 22, 26) #minlong, maxlong, minlat, maxlat
+soil2023crop <- crop(soil2023, ext)
+plot(soil2023crop, col = cl)
+
+# you can download another image (i.e same image but different year) and then
+# ... crop it exactly to place it on top on the previous image
