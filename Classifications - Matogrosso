@@ -80,3 +80,7 @@ library(ggplot2)
 pl1992 <- ggplot(tabmat, aes(x=class, y=y1992, color=class)) +
   geom_bar(stat = "identity", fill = "white")
 pl1992
+
+pl2006 <- ggplot(tabmat, aes(x=class, y=y2006, color=class)) +
+  geom_bar(stat = "identity", fill = "white")
+pl2006
