@@ -1,0 +1,23 @@
+# OBJECTIVE: to classify satellite images
+
+# download the packages needed
+library(terra)
+library(imageRy)
+
+# take a look at the files in the package
+im.list()
+
+# we will be using the Solar Orbitar images
+Sun <- im.import("Solar_Orbiter_s_first_views_of_the_Sun_pillars.jpg")
+
+# we want to now classify the image based on clusters relating to the color
+sunc <- im.classify(Sun, num_clusters=3)
+# Sun = image to be classified, 3= number of clusters wanted
+
+# now plot the classified image
+plot(sunc)
+# the image has been classified in 3 three clusters, clustered by energy (color)
+# the clusters are random and there is no correlation between the number and
+# ... the cluster with the highest energy
+# based on the original image, we can deduce that #2 (yellow) is the cluster with
+# ... the highest energy
