@@ -1,0 +1,82 @@
+# OBJECTIVE: to classify satellite images and estimate the amount of change
+# we will take two images from the same location but different years to compare
+# ... in regards to clusters
+
+# download the packages needed
+library(terra)
+library(imageRy)
+
+# view the files
+im.list()
+
+
+# select the two matogross images (1992 and 20006)
+M1992 <- im.import("matogrosso_l5_1992219_lrg.jpg")
+M2006 <- im.import("matogrosso_ast_2006209_lrg.jpg")
+
+# we want to classify the images to two clusters: forested area and agriculture
+# ... area/bare ground
+M1992c <- im.classify(M1992, num_clusters = 2)
+plot(M1992c)
+# the clusters are always randomized because the starting point is always a 
+# ... random pixel
+# from the image 1 = bare, 2 = forest
+
+# now make classification of the 2006 image
+M2006c <- im.classify(M2006, num_clusters = 2)
+plot(M2006c)
+# 1 = bare ground, 2= forest
+
+# now plot the two images side by side for comparison
+par(mfrow=c(1,2))
+plot(M1992c[[1]])
+plot(M2006c[[1]])
+# the [[1]] is only b/c three images are being shown. once the package is
+# ... reinstalled, it will be updated to show only one image, not 3
+
+# we want to calculate the proportion of the classes in each image
+# the freq function counts how many pixels pertain to each class
+f1992 <- freq(M1992c)
+f1992
+
+# we want to calcuate the percentage of each class in the images
+# first we calculate the number of pixels in the image uning ncell() function
+tot1992 <- ncell(M1992c)
+tot1992
+# now to find percentage
+p1992 <- f1992 * 100/tot1992
+p1992
+# the percentages show that forest = 83% and bare ground = 17%
+
+#now conduct the same process for the 2006 image
+f2006 <- freq(M2006c)
+f2006
+
+# we want to calcuate the percentage of each class in the images
+# first we calculate the number of pixels in the image uning ncell() function
+tot2006 <- ncell(M2006c)
+tot2006
+# now to find percentage
+p2006 <- f2006 * 100/tot2006
+p2006
+# forest = 45%, bareground = 55%
+
+#now we want to create a table comparing the data of the two images
+# we can make a table using the data.frame function
+
+# STEP 1: define the columns
+class <- c("forest", "human")
+y1992 <- c(83, 17)
+y2006 <- c(45, 55)
+
+# STEP 2: build the table using data.frame
+tabmat <- data.frame(class, y1992, y2006)
+tabmat
+
+
+# now we want to create a graph for the class comparisons
+# we need ggplot2 package to create the graphs
+library(ggplot2)
+pl1992 <- ggplot(tabmat, aes(x=class, y=y1992, color=class)) +
+  geom_bar(stat = "identity", fill = "white")
+pl1992
