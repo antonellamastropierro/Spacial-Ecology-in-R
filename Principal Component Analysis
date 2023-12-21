@@ -1,0 +1,55 @@
+library(imageRy)
+library(terra)
+library(viridis)
+
+im.list()
+
+sent <- im.import("sentinel.png")
+
+# the pairs function compares the bands within the image
+pairs(sent)
+# the plot shows that the sentinal 2 (red) and sentinal 3 (blue) are strongly
+# ...correlated to each other
+# the plot also shows that the NIR band has no correlation with the other bands
+
+# now we want to perform PCA on top of the image
+sentpc <- im.pca2(sent)
+# ths shows that the 1st principal component has the highest possible range of
+# ...the data (73.4)
+
+# now we can isolate the 1st PC - named PC1
+pc1 <- sentpc$PC1
+viridisc <- colorRampPalette(viridis(7))(255)
+plot(pc1, col=viridisc)
+
+# calculate SD on top of the PC1
+pc1sd3 <- focal(pc1, matrix(1/9, 3, 3), fun=sd)
+plot(pc1sd3, col=viridisc)
+# this has been calculated to an objectively selected layered, as compared to
+# ...when we just selected the NIR band (subjectively)
+
+# calculate SD on top of PC1 with 7x7
+pc1sd7 <- focal(pc1, matrix(1/49, 7, 7), fun=sd)
+plot(pc1sd7, col=viridisc)
+
+dev.off()
+# now we want to compare all the images
+par(mfrow=c(2,3))
+im.plotRGB(sent, 2, 1, 3)    
+plot(sd3, col=viridisc)
+plot(sd7, col=viridisc)
+plot(pc1, col=viridisc)
+plot(pc1sd3, col=viridisc)
+plot(pc1sd7, col=viridisc)
+# comparing the variability in the NIR image and the PC objectively selected
+# ...image shows that there is actually higher variabiltiy in the PC1 image
+
+dev.off()
+
+# now we can stack all the SD images together
+sdstack <- c(sd3, sd7, pc1sd3, pc1sd7)
+plot(sdstack, col=viridisc)
+
+# if we want to label all the images
+names(sdstack) <- c("sd3", "sd7", "pc1sd3", "pc1sd7")
+plot(sdstack, col=viridisc)
