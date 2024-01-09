@@ -1,3 +1,5 @@
+# OBJECTIVE: the purpose of this lesson is to take the data points to create a continuous map (I.E. density)
+# OBJECTIVE: to learn how to modify the map colors and stack multiple maps
 library(spatstat)
 
 bei
