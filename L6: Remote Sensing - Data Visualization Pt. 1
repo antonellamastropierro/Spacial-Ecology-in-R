@@ -1,3 +1,5 @@
+# OBJECTIVE: to observe remote sensing data images by each band (blue, green, red) and compare reflectivity and absorbancy
+
 # install devtools
 
 #load devtools
@@ -79,13 +81,3 @@ plot(b2,col=cl2)
 plot(b3, col=cl3)
 plot(b4, col=cl4)
 plot(b8, col=cl8)
-
-dev.off()
-# RGB Space : red, blue, green space
-# im.plotRGB to choose the different bands and combine them
-# can only choose three bands
-#stacksent: band2=blue, band3=green, band4=red, band8=NIR)
-im.plotRGB(stacksent, r=3, g=2, b=1)
-
-#the image is poor quality with respect to visible spectrum
-# this is why NIR is needed to enhance the image
