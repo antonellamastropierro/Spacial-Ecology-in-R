@@ -1,10 +1,15 @@
-# the objective is to observe community distribution using multivariable analysis
+# OBJECTIVE: to observe community distribution using multivariable analysis
 # for this objective we will use vegan = vegan analysis package
+# vegan package is for ordination methods, diversity analysis and other functions for community and vegetation ecologists
 library(vegan)
 
+# to view all the datasets in the vegan package
+data(package = "vegan")
+
 # we want to look at data in the vegan package, specifically dune data
+# Dune = Vegetation and Environment in Dutch Dune Meadows
 # we can view the dune data with the following:
-dune
+data(dune)
 
 # if we want just see the first six rows
 head(dune)
@@ -12,7 +17,7 @@ head(dune)
 # to see the last six rows
 tail(dune)
 
-# DCA = detrended correspondence anaylis
+# DCA = detrended correspondence anaylsis
 # DCA is a multivariate technique to determine how the species correspond
 # decorana is the DCA function
 ord <-decorana(dune)
