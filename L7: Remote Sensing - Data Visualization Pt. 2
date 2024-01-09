@@ -1,3 +1,6 @@
+# OBJECTIVE: to observe the remote sensing data with all bands (R,G, B) combined
+# OBJECTIVE: to replace the bands with the NIR band to observe enhancements in the image
+
 library(devtools)
 library(imageRy)
 library(terra)
@@ -22,15 +25,26 @@ plot(b4, col=cl4)
 cl8 <- colorRampPalette(c("brown", "orange", "yellow")) (100)
 plot(b8, col=cl8)
 
+
+# RGB Space : red, blue, green space
+# im.plotRGB to choose the different bands and combine them
+# can only choose three bands
+# stacksent: band2=blue, band3=green, band4=red, band8=NIR)
+# the image is poor quality with respect to visible spectrum
+# this is why NIR is needed to enhance the image
 # we want to combine the three bands together
 im.plotRGB(stacksent, r=3, g=2, b=1)
 
 
-# the graph is poor quality, so we want to replace the b2 band with the near IR
+# the graph is poor quality, so we want to replace the red band with the near IR
 # ... band (b8)
+# band2 blue element 1, stacksent[[1]] 
+# band3 green element 2, stacksent[[2]]
+# band4 red element 3, stacksent[[3]]
+# band8 nir element 4, stacksent[[4]]
 im.plotRGB(stacksent, r=4, g=3, b=2)
-# replacing the blue band with near ID band allows us to see additional details
-# since the vegetation has a high reflecivity of the nearIR band.
+# replacing the red band with near ID band allows us to see additional details
+# since the vegetation has a high reflectivity of the NIR band.
 # we can now we the difference between densely vegetated areas and cleared
 # ... land (pastures)
 
@@ -52,8 +66,8 @@ pairs(stacksent)
 # the graphs show that when the three visible bands (RGB) are compared with each
 # ... other, then they are hyper-correlated because they are similar and do not
 # ... provide any additional information
-# when the visible bands are compared to the near IR band, the correlation is
-# ... lower as the near IR band is providing new information
+# when the visible bands are compared to the NIR band, the correlation is
+# ... lower as the NIR band is providing new information
 # the histograms represent the frequency of reflectivity:
 # I.E. comparing blue with green band, there are a higher amount of pixels with
 # ... lower reflectivity and the frequency decreases as reflectivity increases
