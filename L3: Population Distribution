@@ -1,5 +1,10 @@
-# objective is to determine dispersion patterns of populations
+# OBJECTIVE: to determine dispersion patterns of populations
+# OBJECTIVE: to display the distribution of the rana frog species (both present and absent)
+# OBJECTIVE: to display the presence of the rana species in relation to predictors (I.E. elevation, precipitation)
+
+# sdm is a package used for species distribution modelling
 library(sdm)
+# terra is a package used for methods for spatial data analysis with vector (points, lines, polygons) and raster (grid) data
 library(terra)
 
 # system file function purpose is to search for files in the packages installed
@@ -10,10 +15,12 @@ file <- system.file("external/species.shp", package="sdm")
 # this will show the location of the file
 file
 
-#rana is the frog species
+# we want to look at the rana dataset
+# rana is the frog species
 rana <- vect(file)
 rana
 
+# we want to pull the rana data based on their occurrence
 rana$Occurrence
 # 1 represents if rana was found
 # 0 represents absence of rana
