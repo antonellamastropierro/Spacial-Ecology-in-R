@@ -1,32 +1,43 @@
-#install and load packages
+# install and load packages
 library(spatstat)
-#install either through Packages tab or use install.packages("spatstat")
+# install either through Packages tab or use install.packages("spatstat")
+# spatstat is a package that specializes in analyzing spatial point patterns
 
-# load data
-# data used: bei
+# we want to use one of the datasets included in the spatstat package 
+# load data of one of the datasets
+# data to used: bei
+# bei is a dataset of tropical rainforest trees
 # https://CRAN-R-project.org/package=spatstat
+# because the dataset is already loaded in the package, we just have to type
+# ... out it's name
 bei
+# typing its name gives the info of the number of points and sample area
+# ... measurements
 
-#plot data
+# plot data
 plot(bei)
-
-#point dimensions need to be changed = cex
+# the points are a bit messy so we want to change the size of the points
+# we can do so by using the cex function
+# cex = change point dimensions
 plot(bei, cex=0.2)
 
-#change the data symbol = pch
+# pch = change the data point symbol and shape
 plot(bei, cei=0.2, pch=19)
+# pch19 = solid circle
 
+# we can use bei.extra to show the list of pixel images
 bei.extra
-
-#bei.extra is composed of 2 masp: elev and grad. We want to select only elev
+#bei.extra is composed of 2 maps: elev and grad. We want to select only elev
 plot(bei.extra$elev)
 
 # change the name of the dataset
 elevation <- bei.extra$elev
 plot(elevation)
 
-#other method for selecting elevation
+# other method for selecting elevation
 # double brackets are used because the data is images
 bei.extra[[1]]
+elevation2 <- bei.extra[[1]]
+plot(elevation2)
 elevation2 <- bei.extra[[1]]
 plot(elevation2)
