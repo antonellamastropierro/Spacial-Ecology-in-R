@@ -1,3 +1,4 @@
+# OBJECTIVE: the purpose of this lesson is to retrieve a spatial point dataset and plot the data
 # install and load packages
 library(spatstat)
 # install either through Packages tab or use install.packages("spatstat")
