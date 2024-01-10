@@ -1,6 +1,7 @@
 # OBJECTIVE: to classify satellite images and estimate the amount of change
 # we will take two images from the same location but different years to compare
 # ... in regards to clusters
+# the purpose of the classification is to obtain quantitative data on ecosystem
 
 # download the packages needed
 library(terra)
@@ -8,7 +9,6 @@ library(imageRy)
 
 # view the files
 im.list()
-
 
 # select the two matogross images (1992 and 20006)
 M1992 <- im.import("matogrosso_l5_1992219_lrg.jpg")
@@ -39,8 +39,8 @@ plot(M2006c[[1]])
 f1992 <- freq(M1992c)
 f1992
 
-# we want to calcuate the percentage of each class in the images
-# first we calculate the number of pixels in the image uning ncell() function
+# we want to calculate the percentage of each class in the images
+# first we calculate the number of pixels in the image using ncell() function
 tot1992 <- ncell(M1992c)
 tot1992
 # now to find percentage
@@ -52,7 +52,7 @@ p1992
 f2006 <- freq(M2006c)
 f2006
 
-# we want to calcuate the percentage of each class in the images
+# we want to calculate the percentage of each class in the images
 # first we calculate the number of pixels in the image uning ncell() function
 tot2006 <- ncell(M2006c)
 tot2006
@@ -61,7 +61,7 @@ p2006 <- f2006 * 100/tot2006
 p2006
 # forest = 45%, bareground = 55%
 
-#now we want to create a table comparing the data of the two images
+# now we want to create a table comparing the data of the two images
 # we can make a table using the data.frame function
 
 # STEP 1: define the columns
@@ -73,7 +73,6 @@ y2006 <- c(45, 55)
 tabmat <- data.frame(class, y1992, y2006)
 tabmat
 
-
 # now we want to create a graph for the class comparisons
 # we need ggplot2 package to create the graphs
 library(ggplot2)
@@ -84,5 +83,6 @@ pl1992
 pl2006 <- ggplot(tabmat, aes(x=class, y=y2006, color=class)) +
   geom_bar(stat = "identity", fill = "white")
 pl2006
-
-# the purpose of the classification is to obtain quantitative data on ecosystem
+pl2006 <- ggplot(tabmat, aes(x=class, y=y2006, color=class)) +
+  geom_bar(stat = "identity", fill = "white")
+pl2006
