@@ -1,0 +1,38 @@
+# OBJECTIVE: to import images/data from outside sources
+
+library(terra)
+
+# we want to first set the working directory - the file where the image is saved
+# for windows, change the backslashes to slash
+setwd("C:/Users/amast/OneDrive/Documents/UNIBO/Year 2 - 1st Semester/Spatial Ecology in R/Image Download")
+
+# now we need the function to upload the data within the terra package
+# for windows we have to put the jpg at the end
+NA03 <- rast("Najaf 2003.jpg")
+NA03
+
+# now we want to plot the image
+plot(NA03)
+
+# to plot the image in RGB under terra package with bands
+plotRGB(NA03, r=1, g=2, b=3)
+
+# now we want to download the second image
+NA23 <- rast("Najaf 2023.jpg")
+
+# plot the second image with RGB
+plotRGB(NA23, r=1, g=2, b=3)
+
+# to plot the images side by side
+par(mfrow = c(1,2))
+plotRGB(NA03, r=1, g=2, b=3)
+plotRGB(NA23, r=1, g=2, b=3)
+
+# to make a multi-temporal change detection
+nadif = NA23[[1]] - NA03[[1]]
+nacl <- colorRampPalette(c("brown", "grey", "orange")) (100)
+dev.off()
+
+# plot the difference
+plot(nadif, col=nacl)
+# this image shows the max difference in orange
