@@ -1,4 +1,4 @@
-# OBJECTIVE: to classify satellite images 
+# OBJECTIVE: to classify satellite images and estimate the amount of change
 
 # download the packages needed
 library(terra)
