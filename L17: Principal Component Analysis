@@ -1,3 +1,6 @@
+# OBJECTIVE: To use PCA to select the best principal component showing the greatest range
+# OBJECTIVE: To use PCA to view variability from an objectively
+
 library(imageRy)
 library(terra)
 library(viridis)
