@@ -1,3 +1,6 @@
+# OBJECTIVE: to calculate and compare the DVIs of two images from the same location at different times
+# OBJECTIVE: to standardize the DVI between images of different bits and compare the NDVI of the images
+
 library(imageRy)
 library(terra)
 
@@ -18,6 +21,7 @@ im.plotRGB(mg2006, r=2, g=3, b=1)
 par(mfrow=c(1,2))
 im.plotRGB(mg1992, r=2, g=3, b=1)
 im.plotRGB(mg2006, r=2, g=3, b=1)
+# now we can compare the two images side by side
 
 dev.off()
 
@@ -38,17 +42,18 @@ plot(mg1992[[1]])
 
 # calculate the DVI for the 1992 image first
 dvi1992 = mg1992[[1]] - mg1992[[2]]
+# this equates to NIR (band 1) - RED (band 2)
 plot(dvi1992)
 cl <- colorRampPalette(c("dark blue", "yellow", "red", "black")) (100)
 plot(dvi1992, col=cl)
-# the higher DVi, the denser the area
+# the higher DVI, the denser the area
 
-#calculate the DVI for the 2006 image
+# calculate the DVI for the 2006 image
 dvi2006 = mg2006[[1]] - mg2006[[2]]
 plot(dvi2006, col=cl)
 # the image shows lower DVI values validating the less dense areas
 
-# YOU CAN'T COMPARE IMAGES WITH DIFFERENT BITs
+# YOU CAN'T COMPARE IMAGES WITH DIFFERENT BITS
 # in order to compare images with different bits, you can standardize them
 # to standardize the information, you can divide the DVI by their sum
 # NDVI: Normalized different vegetation index
@@ -73,8 +78,11 @@ plot(ndvi2006, col = cl)
 par(mfrow=c(1,2))
 plot(ndvi1992, col=cl)
 plot(ndvi2006, col=cl)
+# now we are able to compare the NDVI of the images side by side
+# we can see that the 1992 image has more dark red (1) indicating a dense forest
+# the 2006 image has more closer to 0 indicating a less dense forest
 
-#Colorblind friendly colors
+# Colorblind friendly colors
 clvir <- clvir <- colorRampPalette(c("violet", "dark blue", "blue", "green", "yellow"))(100)
 par(mfrow=c(1,2))
 plot(ndvi1992, col=clvir)
@@ -82,6 +90,49 @@ plot(ndvi2006, col=clvir)
 
 
 # there is a specific function in the imageRy package for NDVI
+# function = im.ndvi()
+ndvi2006a <- im.ndvi(mg2006, 1, 2)
+plot(ndvi2006a, col = clvir)
+#calculate the DVI for the 2006 image
+dvi2006 = mg2006[[1]] - mg2006[[2]]
+plot(dvi2006, col=cl)
+# the image shows lower DVI values validating the less dense areas
+
+# YOU CAN'T COMPARE IMAGES WITH DIFFERENT BITS
+# in order to compare images with different bits, you can standardize them
+# to standardize the information, you can divide the DVI by their sum
+# NDVI: Normalized different vegetation index
+# NDVI = DVI/SUM
+# NDVI always ranges from -1 to 1
+# NDVI = -1 would indicate weakly dense forest (no NIR reflectance, all red)
+# NDVI = 1 would indicated dense forest (all NIR reflectance, no red)
+
+# Calculate the NDVI for image 1992
+ndvi1992 = dvi1992 / (mg1992[[1]] + mg1992[[2]])
+# or ndvi1992 = (mg1992[[1]] - mg1992[[2]]) / (mg1992[[1]] + mg1992[[2]])
+
+# plot the NDVI for 1992
+plot(ndvi1992, col=cl)
+# the range is now observed between -1 and 1, so it is standardized and can be
+# ... compared
+
+# Calculate the NDVI for image 2006
+ndvi2006 = dvi2006 / (mg2006[[1]] + mg2006[[2]])
+plot(ndvi2006, col = cl)
+
+par(mfrow=c(1,2))
+plot(ndvi1992, col=cl)
+plot(ndvi2006, col=cl)
+# now we are able to compare the standardized DVI of the two images
+
+# Colorblind friendly colors
+clvir <- clvir <- colorRampPalette(c("violet", "dark blue", "blue", "green", "yellow"))(100)
+par(mfrow=c(1,2))
+plot(ndvi1992, col=clvir)
+plot(ndvi2006, col=clvir)
+
+
+# there is a specific function in the imageRy package for NDVI as well
 # function = im.ndvi()
 ndvi2006a <- im.ndvi(mg2006, 1, 2)
 plot(ndvi2006a, col = clvir)
