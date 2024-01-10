@@ -1,3 +1,5 @@
+# OBJECTIVE: to view and compare the variability in an image regarding the variability between pixels
+
 library(imageRy)
 library(terra)
 library(viridis)
