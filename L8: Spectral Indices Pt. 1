@@ -1,4 +1,4 @@
-# The purpose is to compaire the DVI (different vegetation indices) of a
+# OBJECTIVE: To compaire the DVI (different vegetation indices) of a
 # ... location over two different dates
 
 library(imageRy)
@@ -11,7 +11,7 @@ im.list()
 # we want to import the 1999 image first
 im.import("matogrosso_l5_1992219_lrg.jpg")
 
-#let's assign a name to the 1992 image
+# let's assign a name to the 1992 image
 mg1992 <- im.import("matogrosso_l5_1992219_lrg.jpg")
 
 # plot the 1992 image with the bands
