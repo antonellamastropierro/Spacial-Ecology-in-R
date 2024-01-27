@@ -1,0 +1,119 @@
+# OBJECTIVE: To analyze species distribution in regards to environmental variables
+# O1: To import and map species occurrence data
+# 02: To import and map environmental variables
+# 03: To overlap species distribution with environmental variables for analysis
+
+#
+library(sdm)
+library(dismo)
+library(tidyr)
+install.packages("geodata")
+library(geodata)
+
+# we first want to set the working directory. This will allow us to input data that
+# we have retrieved externally and saved in a specific location.
+setwd("C:/Users/amast/OneDrive/Documents/UNIBO/Year 2 - 1st Semester/Spatial Ecology in R/Exam/data")
+# now that the working directory is set, we will be able to input the data we have
+# downloaded externally, into R.
+
+# Rupicapra pyrenaica
+data <- read.csv("Rupicapra.csv")
+# ANOTHER FANTASTIC METHOD FOR RETRIEVING DATA FROM GBIF
+# There is another method that you can use to directly download data from GBIF
+# ... to R. It is the gbif function (dismo package)
+  # gbif("Rupicapra", "pyrenaica", download = F)
+    # shows how many occurrences for that species without downloading
+  # gbif("Rupicapra", "pyrenaica", download = T)
+    # you can then download the data directly by setting download = T
+
+class(data)
+table(data)
+
+# we want to just look at the occurrences located in Italy, so we need to filter
+# only the Italy observations
+table(data$countryCode)
+data_it <- filter(data, countryCode == "IT")
+
+
+# now that we have only ITALY, we want to just retrieve the coordinates for each occurrence
+spg <- select(data_it, "decimalLongitude", "decimalLatitude")
+
+# make sure to remove any observations without coordinates
+spg <- drop_na(spg)
+
+# the dataset is now only coordinates
+glimpse(spg)
+View(spg)
+
+# however the dataset type is a data frame
+class(spg)
+
+
+# In order to map the occurrence data, we need to convert the data type from
+# dataframe to a shape file
+coordinates(spg) <- c("decimalLongitude", "decimalLatitude")
+
+# now we can check to make sure the data is now spatial points
+class(spg)
+
+# we can now plot the data
+plot(spg, cex=.5, pch=19)
+  # cex is used for the size of the point
+  # pch is used for the point symbol (19 = solid circle)
+
+# we now have the points displayed, however there is no background map to
+# show the points in relation to Italy
+
+country_codes("Italy")
+# now we have the three-letter ISO code for Italy
+
+# we can get and administrative boundary map
+map <- gadm(country="ITA", level = 1, path=tempdir())
+plot(map)
+points(spg)
+# now we are able to see the location of the occurrences on a basic map of Italy
+
+# just to show crop function from terra package
+ext <- c(5, 20, 40, 46)
+mapc <- crop(map, ext)
+plot(mapc)
+points(spg)
+
+# --------------------------------------------------------
+  # OBJECTIVE 2: INPUT AND PLOT ENVIRONMENTAL VARIABLES
+  # We will be inputting environmental variable data
+  # VARIABLES: ELEVATION, AVG TEMP, AVG PRECIP
+  
+# ELEVATION MAP
+elev <- elevation_30s(country="ITA", path=tempdir())
+viri <- colorRampPalette(viridis(7))(255)
+plot(elev)
+elevc <- crop(elev, ext)
+plot(elevc, col=viri)
+points(spg)
+
+# AVG TEMP MAP
+tavg <- worldclim_country("Italy", var="tavg", path=tempdir())
+plot(tavg[[1]], col=viri)
+tavgc <- crop(tavg, ext)
+plot(tavgc[[1]])
+points(spg)
+
+# PRECIPIATION MAP
+prec <- worldclim_country("Italy", var="prec", path=tempdir())
+precc <- crop(prec, ext)
+plot(precc[[1]])
+points(spg, cex=.4, pch=19)
+
+
+# PLACE ALL THE MAPS TOGETHER
+par(mfrow=c(2,2))
+plot(mapc)
+points(spg)
+plot(elevc)
+points(spg)
+plot(tavgc[[1]])
+points(spg)
+plot(precc[[1]])
+points(spg)
+
