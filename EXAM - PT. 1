@@ -1,117 +1,231 @@
-# OBJECTIVE: To analyze species distribution in regards to environmental variables
+# PART I - OBJECTIVE: To analyze species distribution in regards to environmental variables
 # O1: To import and map species occurrence data
 # 02: To import and map environmental variables
 # 03: To overlap species distribution with environmental variables for analysis
 
-#
+# PART II - OBJECTIVE: 
+
+# Here are the packages we will be using for this project
 library(sdm)
+  # sp package automatically loads with sdm package
 library(dismo)
+# dimso package is another species distribution package
+# tidyr and dplyr are data manipulation packages
 library(tidyr)
-install.packages("geodata")
+library(dplyr)
+# geodata is a package to obtain maps
 library(geodata)
+  # terra package automatically loads with geodata package
 
 # we first want to set the working directory. This will allow us to input data that
 # we have retrieved externally and saved in a specific location.
-setwd("C:/Users/amast/OneDrive/Documents/UNIBO/Year 2 - 1st Semester/Spatial Ecology in R/Exam/data")
-# now that the working directory is set, we will be able to input the data we have
-# downloaded externally, into R.
+setwd("C:/Users/amast/OneDrive/Documents/UNIBO/Year 2 - 1st Semester/Spatial Ecology in R/Exam/Spatial Ecology Exam/data")
+# now that the working directory is set, we will be able to input the data we have downloaded externally into R.
 
-# Rupicapra pyrenaica
+# The species we will be analyzing is: Rupicapra pyrenaica
+# Rupicapra pyrenaica is a subspecies that are endemic to the Abruzzo region in Italy
+# The tend to occur in areas of higher elevation with moderate forest cover and temperate climate
+
+# The Rupicapra Pyrenaica (RP) data now needs to be imported into R
 data <- read.csv("Rupicapra.csv")
-# ANOTHER FANTASTIC METHOD FOR RETRIEVING DATA FROM GBIF
+# ANOTHER FANTASTIC METHOD FOR RETRIEVING DATA FROM GBIF!
 # There is another method that you can use to directly download data from GBIF
 # ... to R. It is the gbif function (dismo package)
   # gbif("Rupicapra", "pyrenaica", download = F)
     # shows how many occurrences for that species without downloading
   # gbif("Rupicapra", "pyrenaica", download = T)
     # you can then download the data directly by setting download = T
+# OR you can directly pull GBIF data with the geodata package as well, using the spoccurrence function
 
+# now that we have the data downloaded, we can view it
+View(data)
+
+# the data type is currently categorized as a data frame
 class(data)
-table(data)
 
-# we want to just look at the occurrences located in Italy, so we need to filter
-# only the Italy observations
+# we can look at the data to see the column names
+glimpse(data)
+
+# the occurrences are located throughout Europe (France, Spain, Andorra, Italy)
+# we want to just look at the occurrences located in Italy, so we need to filter the data to have only the Italy observations
+# the column pertaining to the country of occurrence is identified as countryCode
 table(data$countryCode)
+
+# Italy is shown to be labeled as IT in the dataset
+# We can now filter the data based on the Italy country code
 data_it <- filter(data, countryCode == "IT")
 
+# we can see now that the number of variables has been reduced to 158
+nrow(data_it)
 
-# now that we have only ITALY, we want to just retrieve the coordinates for each occurrence
-spg <- select(data_it, "decimalLongitude", "decimalLatitude")
+# we can view the beginning and end of the country code column
+head(data_it$countryCode)
+tail(data_it$countryCode)
+# now we have confirmed that the data only consists of observations in Italy
 
-# make sure to remove any observations without coordinates
-spg <- drop_na(spg)
+# now that we have only ITALY, the next steps will be taken in order to convert the data type from dataframe to spatial points in order to map them
+# first, we want to just retrieve the coordinates for each occurrence
+data_cd <- select(data_it, "decimalLongitude", "decimalLatitude")
+
+# we also want to make sure to remove any observations without coordinates
+data_cd <- drop_na(data_cd)
 
 # the dataset is now only coordinates
-glimpse(spg)
-View(spg)
+glimpse(data_cd)
 
-# however the dataset type is a data frame
-class(spg)
+# and composed of only two columns
+colnames(data_cd)
 
+# we can view the data again
+View(data_cd)
 
-# In order to map the occurrence data, we need to convert the data type from
-# dataframe to a shape file
-coordinates(spg) <- c("decimalLongitude", "decimalLatitude")
+# however the dataset type is still a data frame
+class(data_cd)
+
+# In order to map the occurrence data, we need to convert the data type from dataframe to a shape file
+coordinates(data_cd) <- c("decimalLongitude", "decimalLatitude")
+# this function is taken from the sp package, a package installed automatically with the sdm package
 
 # now we can check to make sure the data is now spatial points
-class(spg)
+class(data_cd)
 
-# we can now plot the data
-plot(spg, cex=.5, pch=19)
-  # cex is used for the size of the point
-  # pch is used for the point symbol (19 = solid circle)
+# now that we have a spatial point data set, we can plot the data
+plot(data_cd, cex=.4, pch=19)
+  # ARGUMENTS:
+    # cex is used for the point dimension
+    # pch is used for the point symbol (19 = solid circle)
 
-# we now have the points displayed, however there is no background map to
-# show the points in relation to Italy
+# we now have the points displayed, however there is no background map to show the points in relation to Italy
+# We can use the geodata package to plot a background map of Italy to show where the observations are located in Italy
+# the basic map we will be using is an administrative boundary map, which outlines the regions
+# this will allow us just to get a basic view of the RP distribution of Italy in relation to Italy's regions
 
+# to plot the map, we need to first retrieve the country code for Italy
 country_codes("Italy")
-# now we have the three-letter ISO code for Italy
+# now we have the three-letter ISO code for Italy: ITA
 
-# we can get and administrative boundary map
+# we can get an administrative boundary map using the gadm function
+# the gadm function in geodata directly downloads maps from the GADM website
 map <- gadm(country="ITA", level = 1, path=tempdir())
+  # ARGUMENTS:
+    # paht: if we want to save all the data we are using that we download from GADM we can change the path to the location where we want to save the downloaded data
+    # I.E. gadm(country="ITA", level = 1, path="C:/Users/amast/OneDrive/Documents/UNIBO/Year 2 - 1st Semester/Spatial Ecology in R/Exam/Spatial Ecology Exam")
+
+# now we can plot the map we retrived from the GADM site
 plot(map)
-points(spg)
+# and we can now place the Rupicapra observations on top of the map to view their location in relation to Italy
+points(data_cd, cex=.4, pch=19)
 # now we are able to see the location of the occurrences on a basic map of Italy
 
+# RP OCCURRENCES IN ITALY
+  # from the map, we can see that the RP are densely distributed in central Italy, in the Abruzzo, Molise areas
+  # there is a few occurrences located in the northwest portion of Italy, in the Valle D'Aost Region
+
+# for the sake of cropping and zooming, we are just going to focus on the observatoins located in central Italy
 # just to show crop function from terra package
-ext <- c(5, 20, 40, 46)
+ext <- c(10, 17, 41, 44)
+# this vector includes minlong, maxlong, minlat, maxlat)
 mapc <- crop(map, ext)
-plot(mapc)
-points(spg)
+plot(mapc, main = "Rupicapra Pyrenaica Occurrences in Italy",
+     xlab = "Longitude", ylab = "Latitude")
+  # ARGUMENTS:
+    # main: map Title
+    # xlab: x-axis label
+    # ylab: y-axis label
+points(data_cd, cex=.4, pch=19)
+
+# ALTERNATIVE METHOD FOR CROPPING/ZOOMING
+# another way of setting the axes scale using the plot function
+# plot(map, ylim = c(41, 44), xlim = c(10, 17))
+# this would achieve the same results as the crop function
+
+dev.off()
+  
+# this species is endemic to Abruzzo which is shown in this map
 
 # --------------------------------------------------------
   # OBJECTIVE 2: INPUT AND PLOT ENVIRONMENTAL VARIABLES
   # We will be inputting environmental variable data
-  # VARIABLES: ELEVATION, AVG TEMP, AVG PRECIP
+  # VARIABLES: ELEVATION, AVG TEMP, AVG PRECIP, LAND COVER (TREES & GRASSLAND)
+
+# DO COLORBLIND PALETTE!!!!!!!!!!!!!
+viri <- colorRampPalette(viridis(7))(255)
   
 # ELEVATION MAP
 elev <- elevation_30s(country="ITA", path=tempdir())
-viri <- colorRampPalette(viridis(7))(255)
 plot(elev)
 elevc <- crop(elev, ext)
-plot(elevc, col=viri)
-points(spg)
+plot(elevc, main = "Elevation",
+     xlab = "Longitude", ylab = "Latitude")
+points(data_cd, pch=1)
+# the RP species appears to be distributed between approximately 1,200 meters
+# and above
+
+dev.off()
 
 # AVG TEMP MAP
 tavg <- worldclim_country("Italy", var="tavg", path=tempdir())
-plot(tavg[[1]], col=viri)
+plot(tavg[[1]])
 tavgc <- crop(tavg, ext)
-plot(tavgc[[1]])
-points(spg)
+plot(tavgc[[1]], main = "Average Temperature",
+     xlab = "Longitude", ylab = "Latitude")
+points(data_cd, cex=.4, pch=19)
+# we can see the the RP species distributed between -5 and 5 degrees Celsius
+
+dev.off()
 
 # PRECIPIATION MAP
 prec <- worldclim_country("Italy", var="prec", path=tempdir())
 precc <- crop(prec, ext)
-plot(precc[[1]])
-points(spg, cex=.4, pch=19)
+plot(precc[[1]], main = "Precipitation",
+     xlab = "Longitude", ylab = "Latitude")
+points(data_cd, cex=.4, pch=19)
+# RP species is distributed in areas of lower precipitation
 
+dev.off()
+
+# LANDCOVER: TREES AND GRASSLANDS
+  # TREES
+tland <- landcover(var = "trees", path = tempdir())
+tlandc <- crop(tland, ext)
+plot(tlandc[[1]], main = "Land Cover: Trees",
+     xlab = "Longitude", ylab = "Latitude")
+points(data_cd, cex=.4, pch=19)
+
+dev.off()
+
+  # GRASSLAND
+gland <- landcover(var = "grassland", path = tempdir())
+glandc <- crop(gland, ext)
+plot(glandc[[1]], main = "Land Cover: Grassland",
+     xlab = "Longitude", ylab = "Latitude")
+points(data_cd, cex=.4, pch=19)
+
+dev.off()
 
 # PLACE ALL THE MAPS TOGETHER
-par(mfrow=c(2,2))
-plot(mapc)
-points(spg)
-plot(elevc)
-points(spg)
+par(mfrow=c(2,3))
+plot(elevc, main = "Elevation",
+     xlab = "Longitude", ylab = "Latitude")
+points(data_cd, cex=.4, pch=19)
+plot(tavgc[[1]], main = "Average Temperature",
+     xlab = "Longitude", ylab = "Latitude")
+points(data_cd, cex=.4, pch=19)
+plot(precc[[1]], main = "Precipitation",
+     xlab = "Longitude", ylab = "Latitude")
+points(data_cd, cex=.4, pch=19)
+plot(tlandc[[1]], main = "Land Cover: Trees",
+     xlab = "Longitude", ylab = "Latitude")
+points(data_cd, cex=.4, pch=19)
+plot(glandc[[1]], main = "Land Cover: Grassland",
+     xlab = "Longitude", ylab = "Latitude")
+points(data_cd, cex=.4, pch=19)
+
+dev.off()
+
+###################################################################
+# PART TWO: NDVI
+
 plot(tavgc[[1]])
 points(spg)
 plot(precc[[1]])
