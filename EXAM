@@ -16,6 +16,7 @@ library(dplyr)
 # geodata is a package to obtain maps
 library(geodata)
   # terra package automatically loads with geodata package
+library(viridis)
 
 # we first want to set the working directory. This will allow us to input data that
 # we have retrieved externally and saved in a specific location.
@@ -226,8 +227,54 @@ dev.off()
 ###################################################################
 # PART TWO: NDVI
 
-plot(tavgc[[1]])
-points(spg)
-plot(precc[[1]])
-points(spg)
+# 2019 IMAGERY
+19b2 <- rast("2019_B02.tiff")
+plot(19b2)
+19b3 <- rast("2019_B03.tiff")
+plot(19b3)
+19b4 <- rast("2019_B04.tiff")
+plot(19b4)
+19b8 <- rast("2019_B08.tiff")
+plot(19b8)
+
+19stacksent <-  c(19b2, 19b3, 19b4, 19b8)
+plot(19stacksent)
+
+# b2= blue, b3= green, b4 = red, b8= NIR
+# elements 1, 2, 3, 4
+plotRGB(19stacksent, r=4, g=3, b=2)
+plotRGB(19stacksent, r=3, g=2, b=4)
+pairs(19stacksent)
+
+vl <- viridis(100, option = "D")
+19dvi = 19b8 - 19b4
+plot(19dvi, col=vl)
+19ndvi = 19dvi / (19b8 + 19b4)
+plot(19ndvi)
+plot(19ndvi, col=vl)
+###########################################################################
+#2023 IMAGERY
+23b2 <- rast("2023_B02.tiff")
+plot(23b2)
+23b3 <- rast("2023_B03.tiff")
+plot(23b3)
+23b4 <- rast("2023_B04.tiff")
+plot(23b4)
+23b8 <- rast("2023_B08.tiff")
+plot(23b8)
+
+23stacksent <-  c(23b2, 23b3, 23b4, 23b8)
+plot(23stacksent)
+
+# b2= blue, b3= green, b4 = red, b8= NIR
+# elements 1, 2, 3, 4
+plotRGB(23stacksent, r=4, g=3, b=2)
+plotRGB(23stacksent, r=3, g=2, b=4)
+pairs(23stacksent)
+
+23dvi = 23b8 - 23b4
+plot(23dvi, col=vl)
+23ndvi = 23dvi / (23b8 + 23b4)
+plot(23ndvi)
+plot(23ndvi, col=vl)
 
