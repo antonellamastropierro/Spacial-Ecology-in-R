@@ -4,12 +4,22 @@
 #------------------------------------------------------------------------------
 # Here are the packages we will be using for this project
 
+install.packages("sdm")
+install.packages("dismo")
+install.packages("tidyr")
+install.packages("dplyr")
+install.packages("geodata")
+install.packages("viridis")
+
+# Now that we have the packages installed, we can load them
+
 # species distribution modeling package
 library(sdm)
   # sp package automatically loads with sdm package
+library(dismo)
+  # raster package automatically loads with dismo package
 
 # data manipulation packages
-library(dismo)
 library(tidyr)
 library(dplyr)
 
@@ -27,21 +37,32 @@ setwd("C:/Users/amast/OneDrive/Documents/UNIBO/Year 2 - 1st Semester/Spatial Eco
   # ... downloaded externally, into R.
 
 ###############################################################################
-# PART I: DISTRIBUTION OF SPECIES OCCURRENCES IN RELATION TO ENVIRONMENTAL VARIABLES
-# OBJECTIVE: To analyze species distribution in regards to environmental variables
+# PART I: DISTRIBUTION OF SPECIES OCCURRENCE IN RELATION TO ENVIRONMENTAL VARIABLES
+# OBJECTIVE: To visually analyze species distribution in regards to environmental variables
   # O1: To import and map species occurrence data
   # 02: To import and map environmental variables
-  # 03: To overlap species occurrences with environmental variables for analysis
+  # 03: To overlap species occurrence with environmental variables for visual analysis
 
 # -----------------------------------------------------------------------------
 # 01: Import and map species occurrence data
-# SPECIES: Rupicapra pyrenaica
+# SPECIES: Rupicapra pyrenaica (identified in this project as RP)
+  # Rupicapra pyrenaica is a goat-antelope species
+  # Geographic Range: Pyreneese, Cantabrian and Appennine Mountains
+    # (Spain, France, Andorra, Italy)
+  # Elevation Range: 1000 - 2800 meters
+  # Seasonal Movements:
+    # Winter: lower elevation in forests
+    # Summer: higher elevation, more open areas
+  # Social Organization: herds of more than 25 individuals/kilometer
+  # Food: graminoids and forbs (herbaceous plants)
+  # REFERENCE: https://www.gbif.org/species/5220171
 # DATA SOURCE: GBIF (Global Biodiversity Information Facility)
-  # gbif.org
-  # Rupicapra pyrenaica are a species SDKFH#*($(*@$&*(E)))
+  # REFERENCE: https://www.gbif.org/
 
 # we first want to upload the external species occurrence data into R
 data <- read.csv("Rupicapra.csv")
+# the occurrence data retrieved from GBIF is PRESENCE ONLY
+
 # ANOTHER FANTASTIC METHOD FOR RETRIEVING DATA FROM GBIF
 # There is another method that you can use to directly download data from GBIF
   # ... to R. It is the gbif function (dismo package)
@@ -59,16 +80,17 @@ class(data)
 
 # we can look at the data to see the column names
 glimpse(data)
+# we have 50 columns (variables) with 28,084 rows (occurrences)
 
 # we want to just look at the occurrences located in Italy, so we need to filter
-`# ... only the Italy observations
+  # ... only the Italy observations
 table(data$countryCode)
 # Italy is shown to be labeled as IT in the dataset
 
 # We can now filter the data based on the Italy country code
 data_IT <- filter(data, countryCode == "IT")
 
-# we can see now that the number of variables has been reduced to 158
+# we can see now that the number of occurrences has been reduced to 158
 nrow(data_IT)
 
 # we can view the beginning and end of the country code column
@@ -76,7 +98,8 @@ head(data_IT$countryCode)
 tail(data_IT$countryCode)
 # now we have confirmed that the data only consists of observations in Italy
 
-# The next steps entail converting the data from a data frame into spatial points in order to allow for mapping
+# The next steps entail converting the data from a data frame into spatial points
+  # ... in order to allow for mapping
 # now that we have only ITALY, we want to just retrieve the coordinates for each occurrence
 data_cd <- select(data_IT, "decimalLongitude", "decimalLatitude")
 
@@ -88,220 +111,323 @@ glimpse(data_cd)
 colnames(data_cd)
 
 # the dataset is now composed of only two columns
-View(data_cd)
-
 # however the dataset type is still a data frame
 class(data_cd)
 
 
 # In order to map the occurrence data, we need to convert the data type from
-# dataframe to a shape file
+  # ... dataframe to a shape file
 coordinates(data_cd) <- c("decimalLongitude", "decimalLatitude")
-# this function is taken from the sp package. It allows use to convert a dataframe to spatial points
+# this function is taken from the sp package. It allows use to convert a dataframe
+  # ... to spatial points
 
 
 # now we can check to make sure the data is now spatial points
 class(data_cd)
+# the data type is now identified as Spatial Points
 
 # we can now plot the data points
 plot(data_cd, cex=.5, pch=19)
-  # cex is used for the size of the point
+  # cex is used for the point dimensoions
   # pch is used for the point symbol (19 = solid circle)
-
-# we now have the points displayed, however there is no background map to show the points in relation to Italy
+# we now have the points displayed, however there is no background map to show
+  # ... the points in relation to Italy
 
 dev.off()
 
 # We can use the geodata package to plot a background map of Italy to show where
-# the observations are located in Italy
+  # ... the observations are located in Italy
 # the map we will be using is administrative boundary map, which outlines the regions
 
 # to plot the map, we need to first retrieve the country code for Italy
 country_codes("Italy")
 # now we have the three-letter ISO code for Italy: ITA
 
-# we can get an administrative boundary map
-admap <- gadm(country="ITA", path="C:/Users/amast/OneDrive/Documents/UNIBO/Year 2 - 1st Semester/Spatial Ecology in R/Exam/data")
-plot(admap, main = "Italy Administrative Map", 
-     xlab = "Longitude", ylab = "Latitude")
-
+# now we can get an administrative boundary map from the GADM function
+  # GADM function directly downloads the maps from the GADM website
+  # REFERENCE: https://gadm.org/
+admap <- gadm(country="ITA", path=tempdir())
 # if we want to save all the data we are using that we download from GADM
-# we can change the path to the location where we want to save the downloaded data
+  # ... we can change the path to the location where we want to save the downloaded data
       # I.E. gadm(country="ITA", path="C:/Users/amast/OneDrive/Documents/UNIBO/Year 2 - 1st Semester/Spatial Ecology in R/Exam/Spatial Ecology Exam")
 
 # now we can plot the map we retrieved from GADM
 plot(admap, main = "Italy Administrative Map", 
      xlab = "Longitude", ylab = "Latitude")
-# and we can now place the Rupicapra observations on top of the map to view their location in relation to Italy
-points(data_cd, pch=19)
+# and we can now place the Italy RP observations on top of the map to view their
+  # ... location within Italy
+points(data_cd, cex=.5, pch=19)
 # now we are able to see the location of the occurrences on a basic map of Italy
 
-# there is a few occurrences located in the northwest portion of Italy, in the Valle D'Aosta Region
-# but for the sake of cropping and zooming, we are just going to focus on the observations located
-# in central Italy
+# there is a few occurrences located in the northwest portion of Italy
+  # ... in the Valle D'Aosta Region
+# for the sake of cropping and zooming, we are just going to focus on the observations
+  # ... located in central Italy (Abruzzo area)
+
+# the occurrences are a bit hard to view on this map
+# we use the crop function from terra package to zoom in on the RP occurrence area
+
+# we can first create the crop extent
+ext <- c(10, 17, 41, 44)
+  # 10 = min long, 17 = max long, 41 = min lat, 44= max lat
+# now we can use the crop function
+admapc <- crop(admap, ext)
+# and plot the RP occurrences on the zoomed in map
+plot(admapc, main = "Rupicapra Pyrenaica Occurrences in Italy",
+     xlab = "Longitude", ylab = "Latitude")
+points(data_cd, pch=1)
+# This allows us to get a better view of location of the RP occurrences
+# OBSERVATIONS: RP occurrences identified mainly in Abruzzo Region, spreading
+  # ... northernmost in Marche Region and southernmost in Molise Region
 
 
 # another way of setting the axes scale using the plot function
 # plot(map, ylim = c(41, 44), xlim = c(10, 17))
 # this would achieve the same results as the crop function
 
-# just to show crop function from terra package
-ext <- c(10, 17, 41, 44)
-admapc <- crop(admap, ext)
-plot(admapc, main = "Rupicapra Pyrenaica Occurrences in Italy",
-     xlab = "Longitude", ylab = "Latitude")
-points(data_cd, pch=1)
-# Now we are able to Zoom into the location of the Rupicapra occurencces in central Italy
-# this species is endemic to Abruzzo which is shown in this map
-
 dev.off()
 # --------------------------------------------------------
 # 02: Import and map environmental variables
-# We will be inputting environmental variable data from WorldClimate
+# DATA SOURCES: Shuttle Radar Topography Mission (SRTM), World Climate data, ESA Land Cover data
+# REFERENCES:
+  # https://srtm.csi.cgiar.org/
+  # https://www.worldclim.org/data/index.html
+  # https://esa-worldcover.org/en
 # VARIABLES: ELEVATION, AVG TEMP, AVG PREC, LAND COVER (TREES & GRASSLAND)
 
-# we want to first set up a colorblind inclusive color palette for the maps
+# we want to first set up a colorblind-inclusive color palette for the maps
 vl <- viridis(100, option = "D")
 
-# In the next steps, we will be using the Geodata package to import and map the
-# ... environmental variables.
-# The Geodata package retrieves the environmental variable data from worldclim.org
+# In the next steps, we will be using the geodata and raster packages to import
+  # ... and map the environmental variables.
+# The geodata and raster packages retrieves the environmental variable data from WorldClimate Data
 
 # VARIABLE 1: ELEVATION MAP
+# we can retrieve the elevation map directly from the elevation_30s function in the geodata package
+# geodata pulls the map from the SRTM data
 elev <- elevation_30s(country="ITA", path=tempdir())
-plot(elev)
+# once downloaded, we can plot it
+plot(elev, col=vl)
+# we will need to crop it the same way as the admin map for better RP occurrence
+  # ... observation
+# we already have the same extent established so we can just input that
 elevc <- crop(elev, ext)
+# now we can plot the cropped elevation map with RP occurrence points
 plot(elevc, main = "Elevation (meters)",
      xlab = "Longitude", ylab = "Latitude", col=vl)
-points(data_cd, cex=.4, pch=19)
-# OBSERVATION: the RP species appears to be distributed between approximately 1,200 meters and above
+points(data_cd, cex=.7, pch=1)
+# OBSERVATION: the RP occurrences appear to be grouped around the
+  # ... high elevation areas, approximately 1,200 meters and above
 
 dev.off()
 
 # VARIABLE 2: AVERAGE TEMP MAP
-tavg <- worldclim_country("Italy", var="tavg", path=tempdir())
-plot(tavg[[1]])
+# Geodata has the worldclim_country function which directly downloads the average
+  # ... temperature of Italy, but for each month
+# however, we just want the annual mean temperature, which has been retrieved externally
+  # ... from worlcim.org
+# just like the RP dataset, we can download the annual mean temp map from the
+  # ... working directory using the raster function
+tavg <- raster("Annual Mean Temperature.tif")
+# once downloaded, we can immediately crop with the same extent established
 tavgc <- crop(tavg, ext)
-plot(tavgc[[1]], main = "Average Temperature (Celsius)",
+# then we can plot the avg temp map with the RP data points
+plot(tavgc, main = "Annual Mean Temperature (Celsius)",
      xlab = "Longitude", ylab = "Latitude", col=vl)
-points(data_cd, cex=.4, pch=19)
-# OBSERVATIONS: we can see the the RP species distributed between -5 and 5 degrees Celsius
+points(data_cd, cex=.7, pch=1)
+# OBSERVATIONS: RP occurrences appear to be distributed around temps of between
+  # ... 5 and 10 degrees Celsius
 
 dev.off()
 
-# VARIABLE 3: PRECIPIATION MAP
-prec <- worldclim_country("Italy", var="prec", path=tempdir())
+# VARIABLE 3: PRECIPITATION MAP
+# Geodata has the worldclim_country function which directly downloads the average
+  # ... precipitation of Italy, but for each month
+# however, we just want the annual precipitation, which has been retrieved externally
+  # ... from worlcim.org
+# just like the annual mean temp map, we can download the annual precipitation map from the
+  # ... working directory using the raster function
+prec <- raster("Annual Precipitation.tif")
+# once downloaded, we can immediately crop with the same extent established
 precc <- crop(prec, ext)
-plot(precc[[1]], main = "Precipitation (mm)",
+# then we can plot the annual precipitation map with the RP data points
+plot(precc, main = "Annual Precipitation (mm)",
      xlab = "Longitude", ylab = "Latitude", col=vl)
-points(data_cd, cex=.4, pch=19)
-# OBSERVATIONS: RP species is distributed in areas of lower precipitation
+points(data_cd, cex=.7, pch=1)
+# OBSERVATIONS: RP appear to be distributed around annual precipitation of 1,000 mm
+  # ... but there really is no clear pattern observed
 
 dev.off()
 
 # VARIABLE 4: LANDCOVER - TREES AND GRASSLANDS
+# the landcover maps are retrieved using the landcover function in geodata
+# the maps are pulled from ESA WorldCover
+# we want to look at both trees and grasslands and it was described that RP
+  # ... eat herbaceous plants but also seek forest cover in the winter
+
   # 4A: TREES
+# we first directly pull the map using the landcover function and specify the
+  # ... variable as trees
 tland <- landcover(var = "trees", path = tempdir())
+# once downloaded, we can immediately crop with the same extent established
 tlandc <- crop(tland, ext)
-plot(tlandc[[1]], main = "Land Cover: Trees (percentage)",
+# then we can plot the tree land cover map with the RP data points
+plot(tlandc, main = "Land Cover: Trees (percentage)",
      xlab = "Longitude", ylab = "Latitude", col=vl)
-points(data_cd, cex=.5, pch=19)
-# OBERSVATIONS: 
+points(data_cd, cex=.7, pch=19)
+# OBSERVATIONS: there appears to be a higher percentage of tree cover in the areas
+  # ... where the RP are distributed, but there is really no clear pattern
 
 dev.off()
 
   # 4B: GRASSLAND
+# we first directly pull the map using the landcover function and specify the
+  # ... variable as grassland
 gland <- landcover(var = "grassland", path = tempdir())
+# once downloaded, we can immediately crop with the same extent established
 glandc <- crop(gland, ext)
-plot(glandc[[1]], main = "Land Cover: Grassland (percentange)",
+# then we can plot the tree land cover map with the RP data points
+plot(glandc, main = "Land Cover: Grassland (percentange)",
      xlab = "Longitude", ylab = "Latitude", col=vl)
-points(data_cd, cex=.5, pch=19)
-# OBSERVIATIONS: 
+points(data_cd, cex=.7, pch=19)
+# OBSERVIATIONS: RP appear to be distributed in areas of very high grassland cover
+  # ... of about 80 to 100%
 
 dev.off()
 # ------------------------------------------------------------------------------
 # 03: Overlap species occurrences with environmental variables for analysis
 # We want to place all the variable maps together with the species occurrences
   # ... in order to compare occurrence data with the 4 variables
+# we are going to use the par function to set graph parameters
 par(mfrow=c(2,3))
+# 2 = rows, 3 = columns
 plot(elevc, main = "Elevation (meters)",
      xlab = "Longitude", ylab = "Latitude", col=vl)
-points(data_cd, cex=.4, pch=19)
-plot(tavgc[[1]], main = "Average Temperature (Celsius)",
+points(data_cd, cex=.7, pch=19)
+# the avg temp and precipitation plot margins are off so they have to be adjusted first
+par(mar = c(1, 1, 1, 1))
+plot(tavgc, main = "Annual Mean Temperature (Celsius)",
      xlab = "Longitude", ylab = "Latitude", col=vl)
-points(data_cd, cex=.4, pch=19)
-plot(precc[[1]], main = "Precipitation (mm)",
+points(data_cd, cex=.7, pch=19)
+par(mar = c(1, 1, 1, 1))
+plot(precc, main = "Annual Precipitation (mm)",
      xlab = "Longitude", ylab = "Latitude", col=vl)
-points(data_cd, cex=.4, pch=19)
-plot(tlandc[[1]], main = "Land Cover: Trees (percentage)",
+points(data_cd, cex=.7, pch=19)
+plot(tlandc, main = "Land Cover: Trees (percentage)",
      xlab = "Longitude", ylab = "Latitude", col=vl)
-points(data_cd, cex=.4, pch=19)
-plot(glandc[[1]], main = "Land Cover: Grassland (percentage)",
+points(data_cd, cex=.7, pch=19)
+plot(glandc, main = "Land Cover: Grassland (percentage)",
      xlab = "Longitude", ylab = "Latitude", col=vl)
-points(data_cd, cex=.4, pch=19)
-# OBSERVATIONS: 
+points(data_cd, cex=.7, pch=19)
+# OBSERVATIONS: Comparing the graphs, we can observe the following:
+  # strongest visual pattern with RP distribution = elevation, grassland cover
+  # less strong visual pattern with RP distribution = annual temp, tree cover
+  # no visual pattern with RP distribution = precipitation
 
 dev.off()
 
-# PART I CONCLUSIONS: 
+# PART I CONCLUSIONS:
+# Based on what we observed in the variable and RP distribution mapping, RP prefer
+  # ... areas of higher elevation (1,200 and above) and areas of high grassland cover.
+# These visual observations match the GBIF's description of RP elevation presence
+  # ... and feeding habits.
+# The RP were also observed in clusters, which matches their herd-like social organization
+
+# THINGS TO NOTE:
+  # Further mathematical analysis would need to be calculated in order to analyze for
+    # ... any proper correlation between the RP distribution and variables.
+  # The next steps using the SDM package would be to create distribution simulation
+    # ... with the predictors (variables) for further analysis.
 
 ###############################################################################
-# PART II: NDVI MODELING AND ANALYSIS WITH SPECIES DISTRIBUTION
-# OBJECTIVE: To analyze NDVI of the same location between two time periods
-  # O1: To import and map 2019 Sentinel-2 data of the central Italy region with RP presence
-  # 02: To import and map 2023 Sentinel-2 data of the central Italy region with RP presence
+# PART II: NIR BAND ANALYSIS AND NDVI MODELING & ANALYSIS WITH SPECIES DISTRIBUTION FOR THE YEARS 2019 and 2023
+# OBJECTIVE: To observe the significance of the NIR band and NDVI for vegetation health
+  # ... and to analyze the NDVI of the same location between two time periods and assess for
+  # ... any patterns between NDVI and RP distribution
+  # O1: To import and map the blue, green, red and NIR bands of the
+    # ... 2019 Sentinel-2 data of the central Italy region
+  # 02: To import and map the blue, green, red and NIR bands of the
+    # ... 2023 Sentinel-2 data of the central Italy region
   # 03: To calculate the NDVI of the 2019 and 2023 Sentinel-2 images for comparison
-  # 04: To overlap species occurrences, specific to 2019 and 2023, with NDVI plots for analysis
-# we are using Sentinel-2 data retrieved from Copernicus Open Access Hub
+  # 04: To overlap RP occurrences, specific to 2019 and 2023, with NDVI plots for analysis
+# DATA SOURCE: Copernicus Open Access Hub
+# REFERENCE: https://dataspace.copernicus.eu/explore-data
+# we will be using mosaicked satellite data collected from the entire 2019 year
+  # ... and entire 2023 year. Mosaicking is a form of creating continuous satellite
+  # ... data images by using data from different sources.
 
 #------------------------------------------------------------------------------
 # 01: Import and map 2019 Sentinel-2 data of the central Italy region with RP presence
 # 2019 IMAGERY: We are going to first import the blue, green, red and NIR bands
-  # ... of the 2019 image retrieved from Copernicus
-b2_19 <- rast("2019_B02.tiff")
-plot(b2_19, main = "2019: Blue Band",
-     xlab = "Longitude", ylab = "Latitude")
-b3_19 <- rast("2019_B03.tiff")
-plot(b3_19, main = "2019: Green Band",
-     xlab = "Longitude", ylab = "Latitude")
-b4_19 <- rast("2019_B04.tiff")
-plot(b4_19, main = "2019: Red Band",
-     xlab = "Longitude", ylab = "Latitude")
-b8_19 <- rast("2019_B08.tiff")
-plot(b8_19, main = "2019: NIR Band",
-     xlab = "Longitude", ylab = "Latitude")
+  # ... of the 2019 image retrieved from Copernicus which have been saved in the
+  # ... working directory
+# blue band
+b2_19 <- rast("Blue Band_2019.tiff")
+# green band
+b3_19 <- rast("Green Band_2019.tiff")
+# red band
+b4_19 <- rast("Red Band_2019.tiff")
+# NIR band
+b8_19 <- rast("NIR Band_2019.tiff")
 
 # now that we have all four bands imported, we can plot them altogether for comparison
 ssent_19 <-  c(b2_19, b3_19, b4_19, b8_19)
 plot(ssent_19)
-# OBSERVATIONS: the plot clearly shows the significant amount of detail added
-  # ... from the NIR band to the image
+# OBSERVATIONS: low values indicate absorbance of each band and high values
+  # ... indicate reflectance of each band. The blue, green and red bands show
+  # ... low values, meaning there is a higher absorbance of those bands and do
+  # ... not provide much detail to the image. The NIR band provides a greater
+  # ... amount of detail to the image as well as higher values indicating higher
+  # ... levels of reflectance in relation to the visible bands as vegetation reflects
+  # ... NIR more than even the green band (the color that we see vegetation as)
 
-# We can further compare the 4 bands using the pairs function
+dev.off()
+
+# We can further compare the 4 bands by creating a correlation plot with the
+# ... pairs function
 pairs(ssent_19)
-# OBSERVATIONS: 
+# OBSERVATIONS: the graphs show that when the three visible bands (RGB) are compared
+  # ... with each other, then they are hyper-correlated because they are similar
+  # ... and do not provide any additional information
+# When the visible bands are compared to the NIR band, the correlation is lower
+  # ... as the NIR band is providing new information
+# The histograms represent the pixel distribution of the reflectance index. The
+  # ... RGB bands shows high pixel frequency in the lower reflectance values
+  # ... while the NIR band histogram shows a different distribution of pixels with
+  # ... regard to the reflectance values, showing higher frequency in higher reflectance
+  # ... values
 
-# Now we can use the plotRGB function to layer the bands together to reproduce the true color image
-  # ... as well as replace bands with NIR band to enhance certain colors
+dev.off()
+
+# Now we can use the plotRGB function to layer the bands together to reproduce
+  # ... the "true color" image as well as replace bands with NIR band to enhance certain colors
 
 # The bands and elements correlate as follows:
 # BANDS:   b2= blue   b3= green   b4 = red   b8= NIR
 # ELEMENTS:   1          2           3          4
 
-# First let's view the image with true colors (or how we humans would see it)
+# First let's view the image with true colors (or how we humans would see it) by
+  # ... placing the RGB bands in their respective arguments
 plotRGB(ssent_19, r=3, g=2, b=1)
+# the image shows a moderatly forested area as well as a moderate amount of open
+  # ... land
+
+dev.off()
 
 # now we can also observe the image in "false colors"
 # if we replace one of the bands with the NIR band, whichever color the NIR band
-  # ... is placed will enhance that specific band color
+  # ... is placed will enhance that specific band color as the NIR band provides
+  # ... "new information"
 
 # to enhance the red band
-plotRGB(ssent_19, r=4, g=2, b=1)
+plotRGB(ssent_19, r=4, g=3, b=2)
 # to enhance the green band
-plotRGB(ssent_19, r=3, g=4, b=1)
+plotRGB(ssent_19, r=3, g=4, b=2)
 # to enhance the blue band
 plotRGB(ssent_19, r=3, g=2, b=4)
-# OBSERVATIONS: 
+# OBSERVATIONS: the replacement of the RGB bands with NIR gives us more detailed images
+  # ... as opposed to the "true color" image, showing that NIR band can provide to
+  # ... be a useful tool for assessing vegetative health, status
 
 dev.off()
 
@@ -311,31 +437,35 @@ dev.off()
 
 # We are going to first import the blue, green, red and NIR bands
   # ... of the 2023 image retrieved from Copernicus
-b2_23 <- rast("2023_B02.tiff")
-plot(b2_23, main = "2023: Blue Band",
-     xlab = "Longitude", ylab = "Latitude")
-b3_23 <- rast("2023_B03.tiff")
-plot(b3_23, main = "2023: Green Band",
-     xlab = "Longitude", ylab = "Latitude")
-b4_23 <- rast("2023_B04.tiff")
-plot(b4_23, main = "2023: Red Band",
-     xlab = "Longitude", ylab = "Latitude")
-b8_23 <- rast("2023_B08.tiff")
-plot(b8_23, main = "2023: NIR Band",
-     xlab = "Longitude", ylab = "Latitude")
+# blue band
+b2_23 <- rast("Blue Band_2023.tiff")
+# green band
+b3_23 <- rast("Green Band_2023.tiff")
+# red band
+b4_23 <- rast("Red Band_2023.tiff")
+# NIR band
+b8_23 <- rast("NIR Band_2023.tiff")
 
 # now that we have all four bands imported, we can plot them altogether for comparison
 ssent_23 <-  c(b2_23, b3_23, b4_23, b8_23)
 plot(ssent_23)
-# OBSERVATIONS: the plot clearly shows the significant amount of detail added
-  # ... from the NIR band to the image
+# OBSERVATIONS: similar to the 2019 bands, the green band provides a bit more information
+  # ... than the red and blue bands, but the NIR band shows much higher reflectance
+  # ... values than the RGB bands
 
-# We can further compare the 4 bands using the pairs function
+dev.off()
+
+# We create correlation plots to compare the 4 bands using the pairs function
 pairs(ssent_23)
-# OBSERVATIONS:
+# OBSERVATIONS: similar to the 2019 band results, the RGB bands are highly correlated
+  # ... with the NIR band having lower correlation with respect to the RGB bands and
+  # ... having a different reflectance distribution with higher frequency of higher
+  # ... reflectance values seen
+
+dev.off()
 
 # Now we can use the plotRGB function to layer the bands together to reproduce the true color image
-# ... as well as replace bands with NIR band to enhance certain colors
+  # ... as well as replace bands with NIR band to enhance certain colors
 
 # The bands and elements correlate as follows:
 # BANDS:   b2= blue   b3= green   b4 = red   b8= NIR
@@ -344,17 +474,19 @@ pairs(ssent_23)
 # First let's view the image with true colors (or how we humans would see it)
 plotRGB(ssent_23, r=3, g=2, b=1)
 
-# now we can also observe the image in "false colors"
+# now, similar to the 2019 image, we can also observe the image in "false colors"
 # if we replace one of the bands with the NIR band, whichever color the NIR band
-# ... is placed will enhance that specific band color
+  # ... is placed will enhance that specific band color
 
 # to enhance the red band
-plotRGB(ssent_23, r=4, g=2, b=1)
+plotRGB(ssent_23, r=4, g=3, b=2)
 # to enhance the green band
-plotRGB(ssent_23, r=3, g=4, b=1)
+plotRGB(ssent_23, r=3, g=4, b=2)
 # to enhance the blue band
 plotRGB(ssent_23, r=3, g=2, b=4)
-# OBSERVATIONS: 
+# OBSERVATIONS: the replacement of the RGB bands with NIR gives us more detailed images
+  # ... as opposed to the "true color" image, showing that NIR band can provide to
+  # ... be a useful tool for assessing vegetative health, status
 
 dev.off()
 
@@ -363,18 +495,29 @@ dev.off()
 # the next is to calculate the NDVI of both the 2019 and 2023 images
   # ... in order to compare the NDVI of the two time frames (2019 and 2023)
 # NDVI: Normalized Difference Vegetative Index
-# Purpose of NDVI: ASHDFOIERHCM
+# Purpose of NDVI: widely used vegetation index in assessing vegetation presence and health
+# How it works: chlorophyll pigments in plants absorb red light and reflect NIR light
+  # if plant is healthy, it will absorb a lot of red light and reflect a lot of NIR
+  # ... and if unhealthy, it will absorb less red and reflect less NIR
+# REFERENCE: https://eos.com/blog/ndvi-faq-all-you-need-to-know-about-ndvi/
+
+# in order to determine NDVI we will calculate the difference between
+  # ... the NIR and Red bands over their sum
+# the NDVI is set between -1 and 1, with values closer to 1 indicating healthier
+  # ... vegetation and -1 indicating dead plants, or water, manmade structures, etc
+# Formula Used: (NIR - RED)/(NIR + RED)
 
 # 2019 NDVI calculations
-# Formula Used: (NIR - RED)/(NIR + RED)
 dvi_19 = b8_19 - b4_19
 ndvi_19 = dvi_19 / (b8_19 + b4_19)
 
 # now we can plot the 2019 NDVI
 plot(ndvi_19, main = "2019 NDVI",
      xlab = "Longitude", ylab = "Latitude", col=vl)
-# OBSERVATIONS: 
+# OBSERVATIONS: the 2019 image shows a large amount of area with values close to 1
+  # ... indicating healthy vegetation
 
+dev.off()
 
 # 2023 NDVI Calculation
 dvi_23 = b8_23 - b4_23
@@ -383,7 +526,10 @@ ndvi_23 = dvi_23 / (b8_23 + b4_23)
 # now we can plot the 2023 NDVI
 plot(ndvi_23, main = "2023 NDVI",
      xlab = "Longitude", ylab = "Latitude", col=vl)
-# OBSERVATIONS:
+# OBSERVATIONS: the 2023 image also shows a large amount of area with values close to 1
+  # ... indicating healthy vegetation
+
+dev.off()
 
 # before we place the 2019 and 2023 NDVI plots together for comparison
   # ... we can first create two histograms showing us the pixel distribution within
@@ -397,11 +543,14 @@ hist(ndvi_23, main = "2023 NDVI: Distribution of Pixels",
      col = "skyblue",
      xlab = "NDVI Index Value")
 # OBSERVATIONS: the pixel distribution between the 2019 and 2023 NDVI plots are
-# ... very similar. Both show a high distribution of pixels with NDVI values close
-# ... to one, indicating healthy vegetative environments
+  # ... very similar. Both show a high distribution of pixels with NDVI values close
+  # ... to one, indicating healthy vegetative environments with maybe a slightly
+  # ... healthier state in the 2023 image
+
+dev.off()
 
 # However, even if the NDVI pixel distribution is similar, the location of how they
-# ... distributed could differ between the 2019 and 2023 images.
+  # ... distributed could differ between the 2019 and 2023 images.
 # Let's compile the two NDVI images along with their respective histograms
   # ... for comparison 
 par(mfrow=c(2,2))
@@ -411,16 +560,17 @@ plot(ndvi_23, col=vl, main = "2023 NDVI",
      xlab = "Longitude", ylab = "Latitude")
 par(mar = c(4, 4, 4, 4))
 hist(ndvi_19, main = "2019 NDVI: Distribution of Pixels",
-     col = "skyblue",
+     col = "aquamarine",
      xlab = "NDVI Index Value")
 par(mar = c(4, 4, 4, 4))
 hist(ndvi_23, main = "2023 NDVI: Distribution of Pixels",
-     col = "skyblue",
+     col = "aquamarine",
      xlab = "NDVI Index Value")
 # OBSERVATIONS: from observing the two NDVI images and their respective histograms
   # ... we can see that the 2019 and 2023 NDVI images are similar both their
   # ... NDVI pixel distribution as well as the location of the NDVI values.
-  # Both 2019 and 2023 images indicate healthy vegetative environments
+  # Both 2019 and 2023 images indicate healthy vegetative environments with not much
+  # ... change in vegetation status between the two years
 
 dev.off()
 
@@ -431,9 +581,12 @@ dev.off()
 
 # First step: we need to filter out the 2019 occurrences from the Italy RP occurrence dataset
 glimpse(data_IT)
+# there is a year column, so we can use that
 data_19 <- filter(data_IT, year == "2019")
 
+# view the occurrences from 2019
 nrow(data_19)
+# we have 18 occurrences observed in 2019
 
 # we can view the beginning and end of the year column
 head(data_19$year)
@@ -449,11 +602,7 @@ data_cd19 <- drop_na(data_cd19)
 
 # the dataset is now only coordinates
 glimpse(data_cd19)
-colnames(data_cd19)
 # the dataset is now composed of only two columns
-
-# however the dataset type is still a data frame
-class(data_cd19)
 
 
 # In order to map the 2019 occurrence data, we need to convert the data type from
@@ -469,25 +618,28 @@ class(data_cd19)
 plot(ndvi_19, main= "2019 NDVI with Rupicapra Pyreinaca Occurrences", 
      xlab = "Longitude", ylab = "Latitude", col=vl)
 points(data_cd19, cex=1, pch=19)
-# OBSERVATIONS: 
+# OBSERVATIONS: there doesn't seem to be any pattern associated with RP distribution
+  # .... and NDVI
 
+dev.off()
 
 # We can now repeat the same process for the 2023 NDVI plot and 2023 RP occurrences
 data_23 <- filter(data_IT, year == "2023")
 
+# we can see the number of occurrences for 2023
 nrow(data_23)
+# there are 16 occurrences for 2023
 
+# we can confirm only 2023 data
 head(data_23$year)
 tail(data_23$year)
 
+# now we can do the steps of converting the 2023 data into spatial points
 data_cd23 <- select(data_23, "decimalLongitude", "decimalLatitude")
 
 data_cd23 <- drop_na(data_cd23)
 
 glimpse(data_cd23)
-colnames(data_cd23)
-
-class(data_cd23)
 
 coordinates(data_cd23) <- c("decimalLongitude", "decimalLatitude")
 
@@ -495,21 +647,33 @@ class(data_cd23)
 
 # now that we have the 2023 RP occurrences as spatial points, we can plot them on
   # ... the 2023 NDVI image
-plot(ndvi_23, main= "2019 NDVI with Rupicapra Pyreinaca Occurrences", 
+plot(ndvi_23, main= "2023 NDVI with Rupicapra Pyreinaca Occurrences", 
      xlab = "Longitude", ylab = "Latitude", col=vl)
 points(data_cd23, cex=1, pch=19)
-# OBSERVATOINS: 
+# OBSERVATOINS: there doesn't seem to be any pattern associated with RP distribution
+  # ... and NDVI
 
+dev.off()
 
 # Plot NDVI maps from 2019 and 2023 with RP occurrences from each year
   # ... for comparisons
 par(mfrow=c(1,2))
-plot(ndvi_19, col=vl)
+plot(ndvi_19, main= "2019 NDVI with Rupicapra Pyreinaca Occurrences", 
+     xlab = "Longitude", ylab = "Latitude", col=vl)
 points(data_cd19, cex=1, pch=19)
-plot(ndvi_23, col=vl)
+plot(ndvi_23, main= "2023 NDVI with Rupicapra Pyreinaca Occurrences", 
+     xlab = "Longitude", ylab = "Latitude", col=vl)
 points(data_cd23, cex=1, pch=19)
-# OBSERVATIONS:
+# OBSERVATIONS: there doesn't appear to be any clear pattern with RP distribution
+  # ... and NDVI from visual observation.
 
 dev.off()
 
-# PART II CONCLUSION: 
+# PART II CONCLUSION: Replacement of the NIR band with RGB bands shows that the
+  # ... amount of detail the NIR band can contribute to an image is significant
+# When comparing the NDVI from 2019 and 2023, there was not a significant difference
+  # ... observed between the two time periods with respect to the vegetation status
+  # ... and health
+# No clear relationship was observed between the RP distribution and NDVI for 2019
+  # ... and 2023. Further analysis would be needed in order to determine if a
+  # ... relationship exists.
