@@ -1,6 +1,6 @@
 # NAME: ANTONELLA MASTROPIERRO
 # STUDENT ID: 0001067832
-# CLASS: SPATIAL ECOLOGY IN R (2023-2024)
+# CLASS: SPATIAL ECOLOGY IN R (2023/2024)
 ###############################################################################################################################
 # THIS PROJECT CONSISTS OF TWO PARTS:
   # PART I: DISTRIBUTION OF SPECIES OCCURRENCES IN RELATION TO ENVIRONMENTAL VARIABLES
@@ -682,3 +682,6 @@ dev.off()
 # No clear relationship was observed between the RP distribution and NDVI for 2019
   # ... and 2023. Further analysis would be needed in order to determine if a
   # ... relationship exists.
+
+# THINGS TO NOTE: the ocean is also depicted in the satellite images which could
+  # ... impact the NDVI pixel distribution
