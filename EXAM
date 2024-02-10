@@ -190,6 +190,7 @@ points(data_cd, pch=1)
 # this would achieve the same results as the crop function
 
 dev.off()
+
 # --------------------------------------------------------
 # 02: Import and map environmental variables
 # DATA SOURCES: Shuttle Radar Topography Mission (SRTM), World Climate data, ESA Land Cover data
@@ -236,6 +237,8 @@ tavg <- raster("Annual Mean Temperature.tif")
 # once downloaded, we can immediately crop with the same extent established
 tavgc <- crop(tavg, ext)
 # then we can plot the avg temp map with the RP data points
+# the margins are off so we can set them first
+par(mar=c(1,1,1,1))
 plot(tavgc, main = "Annual Mean Temperature (Celsius)",
      xlab = "Longitude", ylab = "Latitude", col=vl)
 points(data_cd, cex=.7, pch=1)
@@ -255,6 +258,7 @@ prec <- raster("Annual Precipitation.tif")
 # once downloaded, we can immediately crop with the same extent established
 precc <- crop(prec, ext)
 # then we can plot the annual precipitation map with the RP data points
+par(mar=c(1,1,1,1))
 plot(precc, main = "Annual Precipitation (mm)",
      xlab = "Longitude", ylab = "Latitude", col=vl)
 points(data_cd, cex=.7, pch=1)
