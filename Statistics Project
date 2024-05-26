@@ -1,0 +1,476 @@
+# R project - Sloth Species and Conservation Status Analysis 
+# Group: Antonella Mastropierro, Allison Sermarini, Giulia Lucaccioni
+
+
+# The dataset we retrieved from "Kaggle" is data compiled by author "Bertie" who's method
+# of retrieving the data present in the dataset was through research of the average sizes
+# of various sloth species
+
+# The dataset is composed of various information regarding two sloth species:
+# two-toed sloths and three-toed sloths
+
+# The information included in the dataset includes the following variables:
+# Index: the number of observations
+  # Quantitative - numeric/double
+  # Original Variable Name: Index
+  # Modified Variable Name: column removed
+# Sloth Main Species: The main species of the sloths: two-toed or three-toed
+  # Qualitative - character
+  # Original Variable Name: specie
+  # Modified Variable Name: main_species
+# Sloth Subspecies:The subspecies of sloths within each of the main species
+  # Qualitative - character
+  # Original Variable Name: sub_specie
+  # Modified Variable Name: sub_species
+# Endangered Status: The endangered status category which each sloth observation falls into
+  # Qualitative - numeric/double
+  # Original Variable Name: endangered
+  # Modified Variable Name: endangered_status
+# Claw Length (cm): The claw length of each sloth observation in centimeters
+  # Quantitative - numeric/double
+  # Original Variable Name: claw_length_cm
+  # Modified Variable Name: claw_length_cm 
+# Size (cm):  The combined head and body size of each sloth observation in centimeters
+  # Quantitative - numeric/double
+  # Original Variable Name: size_cm
+  # Modified Variable Name: size_cm 
+# Tail Length (cm): The tail length of each sloth observation in centimeters
+  # Quantitative - numeric/double
+  # Original Variable Name: tail_length_cm
+  # Modified Variable Name: tail_length_cm 
+# Weight (kg): The weight of each sloth observation in kilograms
+  # Quantitative - numeric/double
+  # Original Variable Name: weight_kg
+  # Modified Variable Name: weight_kg
+# Total Length (cm): The total length of each sloth observation
+  # This variable is not in the original data set, only in the modified data set
+  # The variable combines the size_cm and tail_length_cm variables
+  # Modified Variable Name: total_length_cm
+
+# Based on this dataset we will be completing the following objectives:
+# 1. What is the absolute frequency distribution of the observations in regards 
+#    to endangered status
+# 2. What is the distribution of observations within each subspecies in the data set
+# 3. What is the average claw size for each main species and which of the 
+#    two main species have the longer claws on average
+# 4. How does the distribution of the weight and total length of each subspecies
+#    compare with each other for each of the two main species
+# 5. Is there a relationship between the weight & total
+#    length variables for either of the two main species
+
+# Install packages needed for this project
+install.packages("tidyverse")
+install.packages("GGally")
+
+# Load the installed packages so that they are available for us to use
+library(tidyverse)
+library(GGally)
+
+# Create a data directory that can be reproducible
+sloth_data <- read_csv("data/sloth_data.csv")
+# The original dataset is now saved and can be viewed in the "Environment" panel
+
+# View the characteristics of the dataset such as # of columns, # of rows,
+# Variable names and their associated data types
+glimpse(sloth_data)
+
+# View the number of columns in the dataset
+ncol(sloth_data)
+# The original dataset has 8 columns or "variables"
+
+# View the number of rows in the dataset
+nrow(sloth_data)
+# The original dataset has 5,000 rows or "observations"
+
+# Another way to summarize the dataset is the str function
+# This again shows the # of columns, # of rows,
+# variable names and associated data types in a different format
+str(sloth_data)
+
+# Show the table version of the dataset with the tibble function
+# This shows the dataset in a table format, with a view of the first 10
+# observations
+tibble(sloth_data)
+
+# In order to view the last 6 observations, we can use the following code
+tail(sloth_data)
+
+# The index column is not needed as it just states the observation number
+# Remove the index column from the original dataset
+# and assign the data set a new name once modifications begin
+sloth_data_m <- sloth_data[-1]
+# The assigned dataframe has been saved and can be viewed in the "Environment" panel
+
+# Confirm that the Index column has been removed
+glimpse(sloth_data_m)
+# The index column is no longer present and the # of columns is now 7
+
+# Rename some of the variables in order to provide better clarification of
+# what type of data is represented in each variable
+sloth_data_m <- rename(sloth_data_m, "endangered_status" = "endangered",
+              "main_species" = "specie", "sub_species" = "sub_specie")
+
+# Let's confirm the changes
+glimpse(sloth_data_m)
+# We can see that the selected variables have been renamed
+
+# We want to organize the data set by endangerment status from least concerning 
+# to critically endangered
+# First, we need to create a shortcut for the order that we will input by assigning it
+endangerment_levels <- c("least_concern", "vulnerable", "critically_endangered")
+# The assigned vector is now saved and can be viewed in the "Environment" panel
+
+# Now that the shortcut is created, we can reorder the data set by endangerment status
+sloth_data_m <- sloth_data_m %>%
+  mutate(endangered_status = factor(endangered_status, levels = endangerment_levels)) %>%
+  arrange(endangered_status)
+
+# Let's confirm the changes
+glimpse(sloth_data_m)
+# We can also confirm the changes by opening up the original set and the first
+# modified data set by selecting them in the "Environment" panels and comparing them
+
+# Using the code to rearrange the variables resulted in changing the data type
+# of the variable "endangered_status" from character to factor
+
+# We can confirm the data type with the following code
+class(sloth_data_m$endangered_status)
+
+# We want to change the data type of "endangered_status" back to a character
+sloth_data_m$endangered_status <- as.character(sloth_data_m$endangered_status)
+
+# Let's confirm the changes
+glimpse(sloth_data_m)
+# The "endangered_status" variable is now identified as a character type again
+
+# Let's confirm the data set has been rearranged by looking at the first few observations
+head(sloth_data_m)
+# The first observations are identified as "least concern"
+
+# Let's confirm the data set has been rearranged by looking at the last few observations
+tail(sloth_data_m)
+# The last observations are identified as "critically endangered"
+
+# Sort columns by qualitative variables first and then quantitative variables second
+sloth_data_m <- sloth_data_m[, c(4, 5, 2, 3, 7, 1, 6)]
+
+# Let's confirm the changes
+glimpse(sloth_data_m)
+# The order of the variables is now rearranged with the qualitative variables first
+# and the quantitative variables after
+# We can again confirm this by comparing the original data set and the
+# first modified data set by opening them up from the "Environment" panel
+
+# Check for missing values in the dataset
+is.na(sloth_data_m)
+# The observations have been returned as "FALSE" indicating no missing values
+# however, this method has only been conducted for the first 142 observations
+
+# We can double-check for missing values in the entire data set
+which(is.na(sloth_data_m))
+# This returned a "0"
+# Therefore, no missing values were found
+
+# Check for duplicates in the dataset
+duplicated(sloth_data_m)
+# The observations have been returned as "FALSE" indicating no duplicates
+# however, this method has only been conducted for the first 1,000 observations
+
+# We can double-check for duplicates in the entire data set
+which(duplicated(sloth_data_m))
+# This returned a "0"
+# Therefore, no duplicates were found
+
+# Now that all modifications are complete, we want to rename the fully modified dataframe
+# to differentiate it from the original and the from the first modifications
+dat <- sloth_data_m
+# The modified dataframe has now been saved and can be viewed in the "Environment" panel
+
+#Now that modified dataframe has been assigned, let's check its characteristics to confirm
+glimpse(dat)
+# The variable names are viewed as the modified variable names
+
+# View the number of columns in the data set
+ncol(dat)
+# There are 7 columns or "variables" as expected
+
+# View the number of rows in the data set
+nrow(dat)
+# No observations have been eliminated
+
+# Show the table version of the data set
+tibble(dat)
+# The modified dataset columns are clearly rearranged by qualitative to quantitative
+# and the modified rows are arranged by "endangered_status"
+# We can also view the changes by opening the dataset up in the "Environment" panel
+
+# Now that we have the final modified dataset, we want to complete our objectives
+# Objective 1: What is the absolute frequency distribution of the observations in 
+# regards to endangered status
+# In order to complete this objective, we want to make a
+# univariate bar chart analyzing the endangered status of the sloth species
+# We want to make modifications to the graph in order to accurately describe the 
+# visualized data by:
+# Changing the title and subtitle and the axes labels for the bar chart 
+
+ggplot(data = dat) + 
+  geom_bar(aes(x = endangered_status)) +
+    labs(
+    title = "Endangered Status of Sloth Species" ,
+    subtitle = "Number of Observations per Endangered Status" , 
+    x = "Endangered Status" ,
+    y = "Number of Observations") +
+  scale_x_discrete(labels = c("Critically Endangered", "Least Concern", "Vulnerable")) +
+  theme_bw()
+
+# From this graph we are able to determine the number of observations in each endangered status
+# It is clear that the greatest number of sloth observations are in the least_concern status
+# While the fewest number of observations are in the critically_endangered status
+
+# Another method of completing Objective 1 is to simply make a frequency distribution table showing
+# The absolute frequencies of the observations in the endangered_status column
+table(dat$endangered_status)
+# This table shows the exact number of observations in each endangerment status
+# From the table we see the majority of sloth observations are listed under least_concern (4390)
+# With the fewest number of sloth observations within the critically_endangered status (73)
+
+# Save the graph - the graph will be saved in the Sloth Species project file
+ggsave("Endangered_Status_Bar_Chart.png", width = 10, height = 10)
+
+# Close the graph
+dev.off()
+
+# Objective 2: What is the distribution of observations within each subspecies in the data set
+# In order to complete this objective, we want to make a
+# univariate pie chart analyzing the percentage frequency of the sloth subspecies
+# We want to make modifications to the graph in order to accurately describe the 
+# visualized data by:
+# Changing the title, subtitle, and colors for the pie chart
+# *The pie chart might take a bit longer to load*
+
+ggplot(data = dat) +
+  geom_col(aes(x = "", y = "", fill = sub_species)) +
+  coord_polar(theta = "y") +
+  labs( title = "Subspecies Distribution" ,
+        subtitle = "Percentage of Each Subspecies Relative to Total Observations" , 
+        x = NULL ,
+        y = NULL,
+        fill = "Subspecies") +
+  scale_fill_manual(labels = c("Brown-Throated Sloth", "Hoffman's Two-Toed Sloth", "Linnaeus's Two-Toed Sloth", "Maned Three-Toed Sloth",
+                               "Pale-Throated Sloth", "Pygmy Three-Toed Sloth"),
+                    values = c("dodgerblue3", "tomato1", "gold2", "orchid4", "seagreen3", "hotpink1")) +
+  theme_void()
+
+# The pie chart represents the subspecies in terms of their percentage frequencies
+# With the pie chart, we can see how the observations are distributed within each 
+# subspecies in the dataset
+
+# We are able to obtain the percentage frequencies in a table format 
+table(dat$sub_species) / length(dat$sub_species) * 100
+# This shows that the majority of the observations are Hoffman's two-toed sloths (23.96%)
+# and the least amount of observations are the Pygmy three-toed slot (1.46%)
+
+# Save the graph - the graph will be saved in the Sloth Species project file
+ggsave("Subspecies_Pie_Chart.pdf", width = 10, height = 10)
+
+# Close the graph
+dev.off()
+
+# Now, for the next objectives, we need to add another column or "variable" to the dataset
+# We want to add a total length (cm) column which will be the sum of 
+# the size and tail lengths of the sloths
+total_length_cm <- dat$size_cm + dat$tail_length_cm
+# The assigned variable is now saved and can be viewed in the "Environment" panel
+
+# Add the new column to the dataset
+dat <- cbind(dat, total_length_cm)
+
+# Confirm the total length is the sum of the size and tail length
+dat$total_length_cm == dat$size_cm + dat$tail_length_cm
+# The observations have been returned as TRUE, indicating that the total_length
+# equals the sum of the size_cm and tail_length_cm
+# however, this method has only been conducted for 1,000 observations
+
+# We can double check if the total length equals the sum of the size and tail length
+# for all observations
+which(dat$total_length_cm != dat$size_cm + dat$tail_length_cm)
+# The code stating which total length units does NOT equal the sum of the size and tail length
+# returned a "0"
+# Therefore, the total_length_cm variable is clearly the sum of the size_cm
+# and tail_length_cm variables
+
+# Check for new column in the dataset
+glimpse(dat)
+# The new variable is present and the number of columns is now 8
+
+# For the next objectives, we also want to separate the observations by main species
+# and create two separate datasets: one for two-toed sloths and one for three-toed sloths
+
+# We want to first filter out the dataset for only the two-toed sloth species
+data_2t <- dat %>%
+  filter(main_species == "two_toed")
+# The new dataframe has been saved and can be viewed in the "Environment" panel
+
+# Check the new dataframe to confirm
+glimpse(data_2t)
+# The number of rows has been reduced to 2,338
+
+# To filter out the dataset for only three-toed sloth species
+data_3t <- dat %>%
+  filter(main_species == "three_toed")
+# The new dataframe has been saved and can be viewed in the "Environment" panel
+
+# Check the new dataframe to confirm
+glimpse(data_3t)
+# The number of rows has been reduced to 2,662
+
+# Objective 3: What is the average claw size for each main species
+# and which of the two main species have the longer claws on average
+# In order to complete this objective, we want to make a
+# bivariate box plot analyzing the central tendencies of the two main species 
+# in relation to their claw length
+# We want to make modifications to the graph in order to accurately describe the
+# visualized data by:
+# Changing the title, subtitle, color, and axes for the box plot
+
+dat %>% 
+  ggplot() +
+  geom_boxplot(aes(x = main_species,
+                   y = claw_length_cm,
+                   fill = main_species)) +
+  labs(
+    title = "Claw Length Comparison of Main Species" ,
+    subtitle = "Two-Toed Sloth vs. Three-Toed Sloth" , 
+    x = "Main Species" ,
+    y = "Claw Length (cm)",
+    fill = "Main Species") +
+  scale_x_discrete(labels = c("Three-Toed Sloth", "Two-Toed Sloth")) +
+  scale_fill_manual(labels = c("Three-Toed Sloth", "Two-Toed Sloth"),
+                    values = c("dodgerblue3", "brown2"))
+
+# From the graph, we can see that the claw length range of the two-Toed Sloth
+# is larger than the range of the Three-Toed Sloth
+# however they both appear to be centered around 7.5 cm and are both symmetric
+
+# In order to get the exact central tendency and variability numbers of the claw lengths of each main species
+# we can make a summary of the central tendencies for each main species and their claw lengths
+summary(data_2t$claw_length_cm)
+summary(data_3t$claw_length_cm)
+# This confirms what we observed in the box plot
+# Comparing the central tendencies of the two main species
+# the average claw length is about the same
+# and there is no significant difference in the remaining central tendencies
+# with the exception of the range and 1st & 3rd quartiles (variability)
+# Therefore, the average claw length for each species is the following:
+# Two-Toed Average Claw Length = 7.33 cm
+# Three-Toed Average Claw Length = 7.51 cm
+# And the three-toed species technically has a larger avg claw length,
+# however the difference is not significant
+
+# Save the graph - the graph will be saved in the Sloth Species project file
+ggsave("Claw_Length_Boxplot.png", width = 10, height = 10)
+
+# Close the graph
+dev.off()
+
+# Objective 4: How does the distribution of the weight and total length of each subspecies
+# compare with each other for each of the two main species
+# In order to complete this objective, we want to make a
+# bivariate scatter plot analyzing the distribution of weight and length of the subspecies in
+# each of the main species
+# We want to make modifications to the graph in order to accurately describe it by:
+# Changing the title, subtitle, colors, and axes for the scatter plot
+
+# The first graph displays the total length and weight distribution of the
+# two-toed sloth subspecies
+data_2t %>% 
+  ggplot(aes(x = total_length_cm,
+             y = weight_kg,
+             fill = sub_species)) + 
+  geom_point(color = "black", pch = 21, size = 2, alpha = .5) +
+  labs(
+    title = "Two-Toed Sloth Species Length & Weight Distribution" ,
+    subtitle = "Comparing Hoffman vs. Linnaeus" , 
+    x = "Total Length (cm)" ,
+    y = "Weight (kg)",
+    fill = "Subspecies") +
+  scale_fill_manual(labels = c("Hoffman's Two-Toed Sloth",
+                               "Linnaeus's Two-Toed Sloth"), 
+                    values = c("tomato1", "gold2"))
+
+# From this graph, we can see that there is no significant 
+# difference between the total length and weight distributions of the two-toed subspecies
+# as they all cluster around the same weight and total length with no clear pattern
+
+# Save the graph - the graph will be saved in the Sloth Species project file
+ggsave("Two_Toed_Sloth_Species_LW.png", width = 15, height = 7)
+
+# Close the graph
+dev.off()
+
+# The second graph displays the total length and weight distribution of the
+# three-toed sloth subspecies
+data_3t %>% 
+  ggplot(aes(x = total_length_cm,
+             y = weight_kg,
+             fill = sub_species)) + 
+  geom_point(color = "black", pch = 21, size = 2, alpha = .5) +
+  scale_y_continuous(breaks = seq(from = 0, to = 9, by = .5)) +
+  labs(
+    title = "Three-Toed Sloth Species Length & Weight Distribution" ,
+    subtitle = "Comparison of Three-Toed Sloth Species" , 
+    x = "Total Length (cm)" ,
+    y = "Weight (kg)",
+    fill = "Subspecies") +
+  scale_fill_manual(labels = c("Brown-Throated Sloth", "Maned Three-Toed Sloth",
+                               "Pale-Throated Sloth", "Pygmy Three-Toed Sloth"),
+                    values = c("dodgerblue3", "orchid4", "seagreen3", "hotpink1"))
+
+# From this graph, we can see that there is no significant difference between the 
+# total length and weight distributions of the following subspecies:
+          # Brown-Throated Sloth
+          # Maned Three-Toed Sloth
+# From this graph, we can see that there is no significant difference between the 
+# total length and weight distributions of the following subspecies:
+          # Pale-Throated Sloth
+          # Pygmy Three-Toed Sloth
+# When comparing all four subspecies, we can see that they all cluster around the same weight
+# However, the Pygmy and Pale-Throated subspecies generally have a smaller total length 
+# than the Brown-Throated and Maned Three-Throated subspecies
+
+# Save the graph - the graph will be saved in the Sloth Species project file
+ggsave("Three_Toed_Sloth_Species_LW.png", width = 15, height = 7)
+
+# Close the graph
+dev.off()
+
+# Correlation Tests and Hypotheses
+# Objective 5: Is there a relationship between the weight & total
+# length variables for either of the two main species
+# We want to run a correlation test in order to determine whether or not there is a
+# correlation between the total length and weight of the sloth species
+# We will conduct two hypotheses tests: one for each of the two main species  
+
+# First Hypothesis Test: Two-Toed Sloth total length & weight correlation
+# H0: there is no correlation between the total_length_cm and weight_kg
+# H1: there is a positive correlation: weight_kg ~ total_length_cm
+cor.test(data_2t$total_length_cm,
+         data_2t$weight_kg)
+
+# The test returned a correlation of 0.12 indicating that weight technically
+# does behave positively according to total length, but the correlation is clearly weak
+# Therefore, we REJECT H0, the null hypothesis since r != 0
+# The result of this hypothesis test is supported by the two-toed scatter plot
+# which shows a very weak pattern displayed between the two variables for any of the subspecies
+
+# First Hypothesis Test: Three-Toed Sloth total length & weight correlation
+# H0: there is no correlation between the total_length_cm and weight_kg
+# H1: there is a positive correlation: weight_kg ~ total_length_cm
+cor.test(data_3t$total_length_cm,
+         data_3t$weight_kg)
+
+# The test returned a correlation of 0.12 indicating that weight technically
+# does behave positively according to total length, but the correlation is clearly weak
+# Therefore, we REJECT H0, the null hypothesis since r != 0
+# The result of this hypothesis test is supported by the three-toed scatter plot
+# which shows a very weak pattern displayed between the two variables for any of the subspecies
